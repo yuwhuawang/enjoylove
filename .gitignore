@@ -100,7 +100,6 @@ ENV/
 # mypy
 .mypy_cache/
 
-lib/
 bin/
 include/
 pip-selfcheck.json
