@@ -7,5 +7,5 @@ urlpatterns = [
     url(r'^register/$', user_register),
     url(r'^verify_code/$', verify_sms_code),
     url(r'^gen_sms_code/$', gen_sms_code),
-    url(r'^ji_push/$', jipush_sms_verify)
+    url(r'^jipush/$', jipush_sms_verify)
 ]
