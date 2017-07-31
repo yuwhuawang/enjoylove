@@ -182,3 +182,9 @@ JWT_AUTH = {
     'JWT_AUTH_COOKIE': None,
 
 }
+
+#aliyun sms
+AccessKeyId = "LTAI9H13RjIiNvm2"
+AccessKeySecret = "SVFEpV0mOsJqPEMPMCNSBVRUuz60XP"
+Endpoint = "https://1725191364816734.mns.cn-hangzhou.aliyuncs.com/"
+Topic = "sms.topic-cn-hangzhou"
