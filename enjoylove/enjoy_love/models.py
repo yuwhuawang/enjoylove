@@ -13,6 +13,7 @@ from django.dispatch import receiver
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.TextField(max_length=500, blank=True)
+    nickname = models.CharField(max_length=15, blank=True)
     verify_code = models.IntegerField(null=True, blank=True, help_text="验证码")
     location = models.CharField(max_length=30, blank=True)
     birth_date = models.DateField(null=True, blank=True)

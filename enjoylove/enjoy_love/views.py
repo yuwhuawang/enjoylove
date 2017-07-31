@@ -30,13 +30,14 @@ def user_demo(request):
 @api_view(['POST'])
 @permission_classes((AllowAny,))
 def user_register(request):
-    username = request.POST.get("username")
+    username = request.POST.get("mobile")
     password = request.POST.get("password")
+    nickname = request.POST.get("nickname")
     print username, "--------", password
     new_user = User()
     new_user.username = username
     new_user.password = password
-
+    new_user.nickname = nickname
     try:
         new_user.save()
     except django.db.IntegrityError:
@@ -49,32 +50,32 @@ def user_register(request):
 
     payload = jwt_payload_handler(new_user)
     token = jwt_encode_handler(payload)
-    cache.set(token, {"username":username, "password":password}, 60)
 
     return Response(ApiResult(result={'token': token})())
 
 
 @api_view(['GET'])
-@permission_classes((IsAuthenticated,))
+@permission_classes((AllowAny,))
 def gen_sms_code(request):
-    token = request.auth
+    mobile = request.GET.get("mobile")
     sms_code = create_verify_code()
-    cache.set(token, sms_code, 60)
+    cache.set(mobile, sms_code, 60)
     return Response(ApiResult({"sms_code": sms_code})())
 
 
-@api_view(['POST'])
-@permission_classes((IsAuthenticatedOrReadOnly,))
+@api_view(['GET'])
+@permission_classes((AllowAny,))
 def verify_sms_code(request):
-    client_sms_code = request.POST.get("verify_code")
+    client_sms_code = request.GET.get("verify_code")
     token = request.auth
     server_sms_code = cache.get(token)
     if client_sms_code == server_sms_code:
-
-        return Response(ApiResult(code=0, msg="注册成功")())
-    else:
-        User.objects.get(username=request.user.username).delete()
-        return Response(ApiResult(code=1, msg="验证码错误")())
+        return Response(ApiResult(code=0, msg="验证成功")())
+    return Response(ApiResult(code=1, msg="验证失败")())
 
 
-
+@api_view(['GET'])
+@permission_classes((AllowAny,))
+def jipush_sms_verify(request):
+    echostr = request.GET.get("echostr")
+    return Response(echostr)
