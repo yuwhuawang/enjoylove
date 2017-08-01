@@ -78,4 +78,4 @@ def verify_sms_code(request):
 @permission_classes((AllowAny,))
 def jipush_sms_verify(request):
     echostr = request.GET.get("echostr")
-    return Response(echostr)
+    return HttpResponse(echostr)
