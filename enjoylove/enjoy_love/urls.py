@@ -5,7 +5,7 @@ from views import user_demo, user_register, verify_sms_code, gen_sms_code, jipus
 urlpatterns = [
     url(r'^login/$', user_demo),
     url(r'^register/$', user_register),
-    url(r'^verify_code/$', verify_sms_code),
+    url(r'^verify_sms_code/$', verify_sms_code),
     url(r'^gen_sms_code/$', gen_sms_code),
     url(r'^jipush/$', jipush_sms_verify)
 ]

@@ -51,25 +51,26 @@ def user_register(request):
     payload = jwt_payload_handler(new_user)
     token = jwt_encode_handler(payload)
 
-    return Response(ApiResult(result={'token': token})())
+    return Response(ApiResult(msg='注册成功', result={'token': token})())
 
 
 @api_view(['GET'])
 @permission_classes((AllowAny,))
 def gen_sms_code(request):
     mobile = request.GET.get("mobile")
-    sms_code = create_verify_code()
+    exist_code = cache.get(mobile)
+    sms_code = exist_code if exist_code else create_verify_code()
     cache.set(mobile, sms_code, 60)
     #todo send_sms_code
-    return Response(ApiResult({"sms_code": sms_code})())
+    return Response(ApiResult(result={"sms_code": sms_code})())
 
 
 @api_view(['GET'])
 @permission_classes((AllowAny,))
 def verify_sms_code(request):
     client_sms_code = request.GET.get("verify_code")
-    token = request.auth
-    server_sms_code = cache.get(token)
+    mobile = request.GET.get("mobile")
+    server_sms_code = cache.get(mobile)
     if client_sms_code == server_sms_code:
         return Response(ApiResult(code=0, msg="验证成功")())
     return Response(ApiResult(code=1, msg="验证失败")())
