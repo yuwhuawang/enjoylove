@@ -5,6 +5,7 @@ import django.core.cache
 import django.db
 import django.http
 import rest_framework.permissions
+from django.contrib import auth
 from rest_framework.response import Response
 import rest_framework_jwt.views
 from rest_framework.decorators import api_view, permission_classes
@@ -20,7 +21,8 @@ import enjoy_love.api_result
 import enjoy_love.models
 from enjoy_love.models import User
 from django.http import HttpResponse
-
+from django.contrib.auth.hashers import make_password
+from rest_framework_jwt.settings import api_settings
 
 def user_demo(request):
     desc = User.objects.all()[0]
@@ -32,18 +34,23 @@ def user_demo(request):
 def user_register(request):
     username = request.POST.get("mobile")
     password = request.POST.get("password")
+    password2 = request.POST.get("password2")
     nickname = request.POST.get("nickname")
-    print username, "--------", password
+    print username, "-----------", password
     new_user = User()
     new_user.username = username
     new_user.password = password
     new_user.nickname = nickname
+
+    if password != password2:
+        return Response(ApiResult(code=1, msg="两次密码不一致"))
     try:
+        exist_user = User.objects.get(nickname=nickname)
+        if exist_user:
+            return Response(ApiResult(code=1, msg="用户名已存在，请重新选择"))
         new_user.save()
     except django.db.IntegrityError:
         return Response(ApiResult(code=1, msg="手机号已存在,请直接登录")())
-
-    from rest_framework_jwt.settings import api_settings
 
     jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
     jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -52,6 +59,23 @@ def user_register(request):
     token = jwt_encode_handler(payload)
 
     return Response(ApiResult(msg='注册成功', result={'token': token})())
+
+
+@api_view(["POST"])
+@permission_classes((AllowAny,))
+def user_login(request):
+    username = request.POST.get("mobile")
+    password = request.POST.get("password")
+    user = auth.authenticate(username=username, password=password)
+    if not user:
+        return Response(ApiResult(code=1, msg="用户名或密码错误"))
+    jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+    jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+
+    payload = jwt_payload_handler(user)
+    token = jwt_encode_handler(payload)
+
+    return Response(ApiResult(msg="登陆成功", result={"token":token}))
 
 
 @api_view(['GET'])
@@ -74,6 +98,22 @@ def verify_sms_code(request):
     if client_sms_code == server_sms_code:
         return Response(ApiResult(code=0, msg="验证成功")())
     return Response(ApiResult(code=1, msg="验证失败")())
+
+
+@api_view(['GET'])
+@permission_classes((AllowAny,))
+def reset_password(request):
+    mobile = request.POST.get("mobile")
+    password = request.POST.get("password")
+    password2 = request.POST.get("password2")
+    if password != password2:
+        return Response(ApiResult(code=1, msg="两次密码不一致"))
+    user = User.objects.get(mobile=mobile)
+    if not user:
+        return Response(ApiResult(code=1, msg="您的手机尚未注册"))
+    user.password = make_password(password)
+    user.save()
+    return Response(ApiResult(code=0, msg="重置密码成功"))
 
 
 @api_view(['GET'])
