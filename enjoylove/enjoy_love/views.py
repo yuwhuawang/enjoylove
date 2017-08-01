@@ -41,7 +41,7 @@ def user_register(request):
     try:
         new_user.save()
     except django.db.IntegrityError:
-        return Response(ApiResult(code=1, msg="用户名已存在")())
+        return Response(ApiResult(code=1, msg="手机号已存在,请直接登录")())
 
     from rest_framework_jwt.settings import api_settings
 
@@ -60,6 +60,7 @@ def gen_sms_code(request):
     mobile = request.GET.get("mobile")
     sms_code = create_verify_code()
     cache.set(mobile, sms_code, 60)
+    #todo send_sms_code
     return Response(ApiResult({"sms_code": sms_code})())
 
 
