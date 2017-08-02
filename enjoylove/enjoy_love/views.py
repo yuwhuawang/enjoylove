@@ -37,7 +37,6 @@ def user_register(request):
     password2 = request.POST.get("password2")
     nickname = request.POST.get("nickname")
     print username, "-----------", password
-    new_user = User.objects.create_user(username=username, password=password)
 
     if password != password2:
         return Response(ApiResult(code=1, msg="两次密码不一致")())
@@ -45,6 +44,7 @@ def user_register(request):
         exist_user = Profile.objects.filter(nickname=nickname)
         if exist_user:
             return Response(ApiResult(code=1, msg="用户名已存在，请重新选择")())
+        new_user = User.objects.create_user(username=username, password=password)
         new_user.profile.nickname = nickname
         new_user.save()
     except django.db.IntegrityError:
