@@ -47,7 +47,6 @@ def user_register(request):
             return Response(ApiResult(code=1, msg="用户名已存在，请重新选择")())
         new_user.profile.nickname = nickname
         new_user.save()
-        #Profile.save(new_user.profile)
     except django.db.IntegrityError:
         return Response(ApiResult(code=1, msg="手机号已存在,请直接登录")())
 
