@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    'grappelli',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,11 +46,14 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework_swagger',
     'rest_framework_docs',
+
+
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -70,6 +74,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
             ],
         },
     },
@@ -190,3 +195,14 @@ AccessKeyId = "LTAI9H13RjIiNvm2"
 AccessKeySecret = "SVFEpV0mOsJqPEMPMCNSBVRUuz60XP"
 Endpoint = "https://1725191364816734.mns.cn-hangzhou.aliyuncs.com/"
 Topic = "sms.topic-cn-hangzhou"
+
+
+#ucpaas sms
+SMS_APPID = "9e5762cfb871469d86e129f97aa9c7b1"
+SMS_ACCOUNTSID = "70188edf2e490428560987a55ce7b0c3"
+SMS_AUTHTOKEN = "cf80517de55175342754598abdbb1119"
+SMS_APIURL = 'https://api.ucpaas.com'
+SMS_VERSION = '2014-06-30'
+SMS_TEMPLATE_ID = '105543'
+SMS_FUNCTION = "Messages"
+SMS_OPERATION = "templateSMS"

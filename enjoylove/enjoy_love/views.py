@@ -4,30 +4,32 @@ from __future__ import unicode_literals
 import django.core.cache
 import django.db
 import django.http
-import rest_framework.permissions
+import simplejson as json
 from django.contrib import auth
 from rest_framework.response import Response
-import rest_framework_jwt.views
 from rest_framework.decorators import api_view, permission_classes
-from django.shortcuts import render
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
-from enjoy_love.utils import create_verify_code
-import enjoy_love.utils
+from enjoy_love.util import create_verify_code
 from enjoy_love.api_result import ApiResult
 from django.core.cache import cache
 
 # Create your views here.
-import enjoy_love.api_result
-import enjoy_love.models
 from enjoy_love.models import User, Profile
 from django.http import HttpResponse
 from django.contrib.auth.hashers import make_password
 from rest_framework_jwt.settings import api_settings
 
-def user_demo(request):
-    desc = User.objects.all()[0]
-    return HttpResponse(desc)
+from utils.sms import RestAPI as SMSSender
+from django.conf import settings
 
+def test(request):
+    sms_sender = SMSSender()
+    sms_sender.templateSMS(accountSid=settings.SMS_ACCOUNTSID,
+                           accountToken=settings.SMS_AUTHTOKEN,
+                           appId=settings.SMS_APPID,
+                           toNumbers="17600369907",
+                           templateId=settings.SMS_TEMPLATE_ID,
+                           param="111111")
 
 @api_view(['POST'])
 @permission_classes((AllowAny,))
@@ -83,8 +85,20 @@ def gen_sms_code(request):
     exist_code = cache.get(mobile)
     sms_code = exist_code if exist_code else create_verify_code()
     cache.set(mobile, sms_code, 60)
-    #todo send_sms_code
-    return Response(ApiResult(result={"sms_code": sms_code})())
+    send_result = SMSSender().templateSMS(accountSid=settings.SMS_ACCOUNTSID,
+                                          accountToken=settings.SMS_AUTHTOKEN,
+                                          appId=settings.SMS_APPID,
+                                          toNumbers=mobile,
+                                          templateId=settings.SMS_TEMPLATE_ID,
+                                          param=sms_code)
+
+    sms_info = json.loads(send_result)
+    if sms_info['resp']['respCode'] != "000000":
+        return Response(ApiResult(code=1, msg="验证码发送失败，请重试", result={"sms_info": sms_info})())
+
+    else:
+        return Response(ApiResult(result={"verify_code": sms_code,
+                                          "sms_info": sms_info})())
 
 
 @api_view(['GET'])
