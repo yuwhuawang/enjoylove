@@ -19,7 +19,7 @@ from django.core.cache import cache
 # Create your views here.
 import enjoy_love.api_result
 import enjoy_love.models
-from enjoy_love.models import User
+from enjoy_love.models import User, Profile
 from django.http import HttpResponse
 from django.contrib.auth.hashers import make_password
 from rest_framework_jwt.settings import api_settings
@@ -37,18 +37,17 @@ def user_register(request):
     password2 = request.POST.get("password2")
     nickname = request.POST.get("nickname")
     print username, "-----------", password
-    new_user = User()
-    new_user.username = username
-    new_user.password = password
-    new_user.nickname = nickname
+    new_user = User.objects.create_user(username=username, password=password)
 
     if password != password2:
-        return Response(ApiResult(code=1, msg="两次密码不一致"))
+        return Response(ApiResult(code=1, msg="两次密码不一致")())
     try:
-        exist_user = User.objects.get(nickname=nickname)
+        exist_user = Profile.objects.filter(nickname=nickname)
         if exist_user:
-            return Response(ApiResult(code=1, msg="用户名已存在，请重新选择"))
+            return Response(ApiResult(code=1, msg="用户名已存在，请重新选择")())
+        new_user.profile.nickname = nickname
         new_user.save()
+        #Profile.save(new_user.profile)
     except django.db.IntegrityError:
         return Response(ApiResult(code=1, msg="手机号已存在,请直接登录")())
 
@@ -68,14 +67,14 @@ def user_login(request):
     password = request.POST.get("password")
     user = auth.authenticate(username=username, password=password)
     if not user:
-        return Response(ApiResult(code=1, msg="用户名或密码错误"))
+        return Response(ApiResult(code=1, msg="用户名或密码错误")())
     jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
     jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
     payload = jwt_payload_handler(user)
     token = jwt_encode_handler(payload)
 
-    return Response(ApiResult(msg="登陆成功", result={"token":token}))
+    return Response(ApiResult(msg="登陆成功", result={"token":token})())
 
 
 @api_view(['GET'])
