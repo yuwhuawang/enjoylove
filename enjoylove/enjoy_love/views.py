@@ -74,7 +74,6 @@ def user_login(request):
 
     payload = jwt_payload_handler(user)
     token = jwt_encode_handler(payload)
-
     return Response(ApiResult(msg="登陆成功", result={"token":token})())
 
 

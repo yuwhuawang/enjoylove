@@ -36,33 +36,54 @@ class Profile(models.Model):
     has_children = models.SmallIntegerField("有无子女", choices=CHILDREN_CHOICES, default=0)
     weight = models.IntegerField("体重", null=True, blank=True, help_text="单位(KG)")
     avatar = models.TextField("头像", null=True, blank=True)
-    create_time = models.DateTimeField(auto_now_add=True)
-    update_time = models.DateTimeField(auto_now=True)
-    login_time = models.DateTimeField(auto_now_add=True)
-
-
-class Vip(models.Model):
-    vip_type = models.CharField(max_length=20)
-    vip_month_price = models.DecimalField("单月会员价", max_digits=20, decimal_places=2)
-    vip_month_price_org = models.DecimalField("单月会员价原价", max_digits=20, decimal_places=2)
-    vip_half_year_price = models.DecimalField("半年会员价", max_digits=20, decimal_places=2)
-    vip_half_year_price_org = models.DecimalField("半年会员价原价", max_digits=20, decimal_places=2)
-    vip_year_price = models.DecimalField("一年会员价", max_digits=20, decimal_places=2)
-    vip_year_price_org = models.DecimalField("一年会员价原价", max_digits=20, decimal_places=2)
-    vip_member_count = models.IntegerField("vip用户数量")
-    create_time = models.DateTimeField(auto_now_add=True)
-    update_time = models.DateTimeField(auto_now=True)
-
-
-class UserExtensions(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    vip_type = models.CharField("vip名称", max_length=20, default="非会员")
+    #create_time = models.DateTimeField(auto_now_add=True)
+    #update_time = models.DateTimeField(auto_now=True)
+    #login_time = models.DateTimeField(auto_now_add=True)
+    vip = models.ForeignKey("Vip", on_delete=models.CASCADE, null=True, blank=True)
     vip_expire_date = models.DateField("会员过期日期", null=True, blank=True)
     identity_verified = models.BooleanField("身份认证", default=False)
     has_car = models.BooleanField("是否购车", default=False)
     has_house = models.BooleanField("是否购房", default=False)
     relationship_desc = models.TextField("情感经历", null=True, blank=True)
     mate_preference = models.TextField("择偶标准", null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            try:
+                p = Profile.objects.get(user=self.user)
+                self.pk = p.pk
+            except Profile.DoesNotExist:
+                pass
+
+        if self.vip is None:  # Set default reference
+            try:
+                self.vip = Vip.objects.get(id=1)
+            except:
+                pass
+        super(Profile, self).save(*args, **kwargs)
+
+
+class Vip(models.Model):
+    class Meta:
+        verbose_name = "会员"
+        verbose_name_plural = "会员"
+
+    vip_type = models.CharField(max_length=20)
+    vip_month_price = models.DecimalField("单月会员价", max_digits=20, decimal_places=2, blank=True, null=True)
+    vip_month_price_org = models.DecimalField("单月会员价原价", max_digits=20, decimal_places=2, blank=True, null=True)
+    vip_half_year_price = models.DecimalField("半年会员价", max_digits=20, decimal_places=2, blank=True, null=True)
+    vip_half_year_price_org = models.DecimalField("半年会员价原价", max_digits=20, decimal_places=2, blank=True, null=True)
+    vip_year_price = models.DecimalField("一年会员价", max_digits=20, decimal_places=2, blank=True, null=True)
+    vip_year_price_org = models.DecimalField("一年会员价原价", max_digits=20, decimal_places=2, blank=True, null=True)
+    vip_member_count = models.IntegerField("vip用户数量", blank=True, null=True)
+    create_time = models.DateTimeField(auto_now_add=True)
+    update_time = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.vip_type
+
+    def __unicode__(self):
+        return self.vip_type
 
 
 class Contact(models.Model):
@@ -107,24 +128,11 @@ class Album(models.Model):
     delete_time = models.DateTimeField()
 
 
-@receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        Profile.objects.create(user=instance)
+        profile = Profile()
+        profile.user = instance
+        profile.save()
 
-
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
-
-
-@receiver(post_save, sender=User)
-def create_user_extension(sender, instance, created, **kwargs):
-    if created:
-        UserExtensions.objects.create(user=instance)
-
-
-@receiver(post_save, sender=User)
-def save_user_extensions(sender, instance, **kwargs):
-    instance.userextensions.save()
+post_save.connect(create_user_profile, User)
 
