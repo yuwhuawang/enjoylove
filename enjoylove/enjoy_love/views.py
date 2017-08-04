@@ -251,6 +251,7 @@ def get_user_tags(request):
 
 
 @api_view(['POST'])
+@django.db.transaction.atomic
 def set_user_tags(request):
     uid = request.POST.get("uid")
     tag_ids = request.POST.get("tag_ids")
@@ -258,7 +259,6 @@ def set_user_tags(request):
     UserTags.objects.filter(user_id=uid).delete()
 
     if tag_ids:
-        raise Exception
         tag_ids_list = tag_ids.split(',')
         if len(tag_ids_list) > 8:
             return ApiResult(msg="最多可以选择八个")

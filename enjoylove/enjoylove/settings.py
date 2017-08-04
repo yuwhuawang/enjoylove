@@ -259,7 +259,7 @@ SMS_TEMPLATE_ID = '105543'
 SMS_FUNCTION = "Messages"
 SMS_OPERATION = "templateSMS"
 
-ATOMIC_REQUESTS=True
+#ATOMIC_REQUESTS = True
 
 
 #AUTH_USER_MODEL = 'enjoy_love.User'
