@@ -1,27 +1,25 @@
 #coding:utf-8
 from __future__ import unicode_literals
+from rest_framework.response import Response
 import json
+
+import rest_framework.response
 from rest_framework import serializers
 
 
-class ApiResult(object):
+class ApiResult(Response):
 
-    def __init__(self, code=0, msg='', result=dict(), error=''):
-        self.code = code
-        self.msg = msg
-        self.result = result
-        self.error = error
+    def __init__(self, msg='ok', code=0, result={}, error=''):
 
-    def to_json(self):
-        json_result = {}
-        json_result.update(self.__dict__)
-        return json_result
+        data = {
+            "code": code,
+            "msg": msg,
+            "result": result,
+            "error": error,
+        }
+        super(ApiResult, self).__init__(data=data)
 
-    def __call__(self, *args, **kwargs):
-        json_result = {}
-        json_result.update(self.__dict__)
-        return json_result
 
-    def __repr__(self):
-        return repr((self.code, self.msg, self.result, self.error))
+    #def __repr__(self):
+    #    return repr((self.code, self.msg, self.result, self.error))
 

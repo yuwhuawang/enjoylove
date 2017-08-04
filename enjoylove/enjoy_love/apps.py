@@ -5,4 +5,4 @@ from django.apps import AppConfig
 
 
 class EnjoyLoveConfig(AppConfig):
-    name = 'enjoy_love'
+    name = '享爱'

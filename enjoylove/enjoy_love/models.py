@@ -6,18 +6,21 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.contrib.auth.models import AbstractUser, BaseUserManager, UserManager
 
 # Create your models here.
 
 
-class Profile(models.Model):
+
+'''
+class User(AbstractUser):
+    nickname = models.CharField('用户名', max_length=15, blank=True)
     GENDER_CHOICES = ((0, '不详'), (1, '男'), (2, '女'))
-    EDUCATION_CHOICES = ((0, '未透露'),  (1, "小学"), (2, "中学"), (3, "大学"), (4, "硕士研究生"), (4, "博士研究生"))
-    INCOME_CHOICES = ((0, "未透露"),  (1, "0-5"), (2, "6-10"), (3, "11-15"), (4, "16-20"), (5, "20+"))
+    EDUCATION_CHOICES = ((0, '未透露'), (1, "小学"), (2, "中学"), (3, "大学"), (4, "硕士研究生"), (4, "博士研究生"))
+    INCOME_CHOICES = ((0, "未透露"), (1, "0-5"), (2, "6-10"), (3, "11-15"), (4, "16-20"), (5, "20+"))
     MARRIAGE_CHOICES = ((0, '未透露'), (1, '未婚'), (2, '已婚'), (3, '离异'), (4, '丧偶'))
     CHILDREN_CHOICES = ((0, '未透露'), (1, '无'), (2, '有'))
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    nickname = models.CharField('用户名', max_length=15, blank=True)
+    #user = models.OneToOneField(User, on_delete=models.CASCADE)
     sex = models.SmallIntegerField('性别', choices=GENDER_CHOICES, default=0)
     person_intro = models.TextField('个人简介', max_length=1000, null=True, blank=True)
     birth_date = models.DateField('出生日期', null=True, blank=True)
@@ -36,6 +39,45 @@ class Profile(models.Model):
     has_children = models.SmallIntegerField("有无子女", choices=CHILDREN_CHOICES, default=0)
     weight = models.IntegerField("体重", null=True, blank=True, help_text="单位(KG)")
     avatar = models.TextField("头像", null=True, blank=True)
+    # create_time = models.DateTimeField(auto_now_add=True)
+    # update_time = models.DateTimeField(auto_now=True)
+    # login_time = models.DateTimeField(auto_now_add=True)
+    vip = models.ForeignKey("Vip", on_delete=models.CASCADE, null=True, blank=True)
+    vip_expire_date = models.DateField("会员过期日期", null=True, blank=True)
+    identity_verified = models.BooleanField("身份认证", default=False)
+    has_car = models.BooleanField("是否购车", default=False)
+    has_house = models.BooleanField("是否购房", default=False)
+    relationship_desc = models.TextField("情感经历", null=True, blank=True)
+    mate_preference = models.TextField("择偶标准", null=True, blank=True)
+'''
+
+
+class Profile(models.Model):
+    GENDER_CHOICES = ((0, '不详'), (1, '男'), (2, '女'))
+    EDUCATION_CHOICES = ((0, '未透露'),  (1, "小学"), (2, "中学"), (3, "大学"), (4, "硕士研究生"), (4, "博士研究生"))
+    INCOME_CHOICES = ((0, "未透露"),  (1, "0-5"), (2, "6-10"), (3, "11-15"), (4, "16-20"), (5, "20+"))
+    MARRIAGE_CHOICES = ((0, '未透露'), (1, '未婚'), (2, '已婚'), (3, '离异'), (4, '丧偶'))
+    CHILDREN_CHOICES = ((0, '未透露'), (1, '无'), (2, '有'))
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    nickname = models.CharField('用户名', max_length=15, blank=True, unique=True)
+    sex = models.SmallIntegerField('性别', choices=GENDER_CHOICES, default=0)
+    person_intro = models.TextField('个人简介', max_length=1000, null=True, blank=True)
+    birth_date = models.DateField('出生日期', null=True, blank=True)
+    work_area_name = models.CharField("工作地名称", max_length=30, null=True, blank=True)
+    work_area_code = models.CharField("工作地编码", max_length=15, null=True, blank=True)
+    born_area_name = models.CharField("籍贯名称", max_length=30, null=True, blank=True)
+    born_area_code = models.CharField("籍贯编码", max_length=30, null=True, blank=True)
+    height = models.IntegerField("身高", null=True, blank=True)
+    education = models.SmallIntegerField("学历", choices=EDUCATION_CHOICES, default=0)
+    career = models.CharField("职业", max_length=50, null=True, blank=True)
+    income = models.SmallIntegerField("年收入", choices=INCOME_CHOICES, default=0)
+    expect_marry_date = models.DateField("期望结婚时间", null=True, blank=True)
+    nationality = models.CharField("民族", max_length=15, null=True, blank=True)
+    marriage_status = models.SmallIntegerField("婚姻状况", choices=MARRIAGE_CHOICES, default=0)
+    birth_index = models.IntegerField("家中排行", null=True, blank=True)
+    has_children = models.SmallIntegerField("有无子女", choices=CHILDREN_CHOICES, default=0)
+    weight = models.IntegerField("体重", null=True, blank=True, help_text="单位(KG)")
+    avatar = models.URLField("头像", null=True, blank=True)
     #create_time = models.DateTimeField(auto_now_add=True)
     #update_time = models.DateTimeField(auto_now=True)
     #login_time = models.DateTimeField(auto_now_add=True)
@@ -95,16 +137,37 @@ class Contact(models.Model):
 
 
 class PersonalTag(models.Model):
+    class Meta:
+        verbose_name = "个人标签"
+        verbose_name_plural = "个人标签"
+
     name = models.CharField("个人标签", max_length=20)
+    valid = models.BooleanField("是否有效", default=True)
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    def __unicode__(self):
+        return self.name
 
 
 class UserTags(models.Model):
+    class Meta:
+        verbose_name = "用户标签"
+        verbose_name_plural = "用户标签"
+        unique_together = ("user", "tag")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tags", related_query_name="tags")
-    tag = models.CharField(max_length=20)
+    tag = models.ForeignKey(PersonalTag)
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.tag.name
+
+    def __unicode__(self):
+        return self.tag.name
 
 
 class PersonalInterest(models.Model):
@@ -128,6 +191,32 @@ class Album(models.Model):
     delete_time = models.DateTimeField()
 
 
+class IdentityVerify(models.Model):
+
+    class Meta:
+        verbose_name = "身份认证"
+        verbose_name_plural = "身份认证"
+    STATUS = ((0, "待审核"), (1, "已同意"), (2, "已拒绝"))
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="identity", related_query_name="identity",)
+    real_name = models.CharField("真实姓名", max_length=20)
+    id_number = models.CharField("身份证号", max_length=20)
+    img_front = models.URLField("正面身份证")
+    img_back = models.URLField("背面身份证")
+    status = models.SmallIntegerField("审核状态", choices=STATUS, default=0)
+    create_time = models.DateTimeField(auto_now_add=True)
+    update_time = models.DateTimeField(auto_now=True)
+
+
+class GlobalSettings(models.Model):
+    class Meta:
+        verbose_name = "app设置"
+        verbose_name_plural = "app设置"
+    key = models.CharField("名称", max_length=20)
+    value = models.CharField("值", max_length= 100)
+    valid = models.BooleanField("是否有效", default=True)
+
+
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         profile = Profile()
@@ -135,4 +224,16 @@ def create_user_profile(sender, instance, created, **kwargs):
         profile.save()
 
 post_save.connect(create_user_profile, User)
+
+
+@receiver(post_save, sender=IdentityVerify)
+def update_verify_status(sender, instance, **kwargs):
+    user = User.objects.get(pk=instance.user.id)
+    if instance.status == 1:
+        user.profile.identity_verified = True
+        user.profile.save()
+    else:
+        user.profile.identity_verified = False
+        user.profile.save()
+
 
