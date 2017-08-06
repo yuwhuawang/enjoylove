@@ -26,6 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
 class GlobalSerializer(serializers.ModelSerializer):
     class Meta:
         model = GlobalSettings
+        fields = "__all__"
 
 
 class PersonalTagSerializer(serializers.ModelSerializer):

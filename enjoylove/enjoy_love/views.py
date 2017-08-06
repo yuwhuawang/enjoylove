@@ -50,6 +50,26 @@ def init(request):
     })
 
 
+@api_view(['GET'])
+@permission_classes((AllowAny, ))
+def user_init(request):
+    uid = request.GET.get("uid")
+    user_info = dict()
+    if uid:
+        user = User.objects.get(pk=uid)
+        user_info = UserSerializer(user).data
+
+    global_settings = GlobalSettings.objects.filter(valid=True)
+    personal_tags = PersonalTag.objects.filter(valid=True)
+
+    global_setting_data = GlobalSerializer(global_settings, many=True).data
+    personal_tags_data = PersonalTagSerializer(personal_tags, many=True).data
+
+    return ApiResult({"user_info": user_info,
+                      "global_info": global_setting_data,
+                      "personal_tags": personal_tags_data})
+
+
 @api_view(['POST'])
 @permission_classes((AllowAny,))
 def user_register(request):
@@ -277,6 +297,9 @@ def set_user_tags(request):
                 #return ApiResult(error=str(e))
 
     return ApiResult()
+
+
+
 
 
 

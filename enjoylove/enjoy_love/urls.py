@@ -2,9 +2,9 @@
 from django.conf.urls import include, url
 from views import (user_login, user_register, verify_sms_code, gen_sms_code,
                    test, upload_avatar, set_gender, verify_identity, set_basic_info,
-                   init, get_user_tags, set_user_tags)
+                   get_user_tags, set_user_tags, user_init)
 urlpatterns = [
-    url(r'^init$', init),
+    url(r'^init$', user_init),
     url(r'^login$', user_login),
     url(r'^register$', user_register),
     url(r'^verify-sms-code$', verify_sms_code),
