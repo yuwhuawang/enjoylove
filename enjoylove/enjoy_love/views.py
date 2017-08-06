@@ -210,7 +210,7 @@ def set_basic_info(request):
     mate_preference = request.POST.get("mate_preference")
     has_car = request.POST.get("has_car")
     has_house = request.POST.get("has_house")
-
+    person_intro = request.POST.get("person_intro")
     user = User.objects.get(pk=uid)
 
     if nickname:
@@ -237,6 +237,9 @@ def set_basic_info(request):
     user.profile.mate_preference = mate_preference if mate_preference else user.profile.mate_preference
     user.profile.has_car = has_car if has_car else user.profile.has_car
     user.profile.has_house = has_house if has_house else user.profile.has_house
+    user.profile.person_intro = person_intro if person_intro else user.profile.person_intro
+
+
     user.profile.save()
 
     return ApiResult("修改成功")
@@ -246,7 +249,10 @@ def set_basic_info(request):
 def get_user_tags(request):
     uid = request.GET.get("uid")
     user_tags = UserTags.objects.filter(user_id=uid)
+
     user_tags_data = UserTagSerializer(user_tags, many=True).data
+
+    #user_tags_data_list = [i['tag'] for i in user_tags_data]
     return ApiResult(result=user_tags_data)
 
 
@@ -261,7 +267,7 @@ def set_user_tags(request):
     if tag_ids:
         tag_ids_list = tag_ids.split(',')
         if len(tag_ids_list) > 8:
-            return ApiResult(msg="最多可以选择八个")
+            return ApiResult(code=1, msg="最多可以选择八个")
 
         for tag_id in tag_ids_list:
             try:
