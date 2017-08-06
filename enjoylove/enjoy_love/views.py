@@ -15,14 +15,14 @@ from enjoy_love.api_result import ApiResult
 from django.core.cache import cache
 
 # Create your views here.
-from enjoy_love.models import User, Profile, IdentityVerify, GlobalSettings, PersonalTag, UserTags
+from enjoy_love.models import User, Profile, IdentityVerify, GlobalSettings, PersonalTag, UserTags, Album
 from django.contrib.auth.hashers import make_password
 from rest_framework_jwt.settings import api_settings
 
 from utils.sms import RestAPI as SMSSender
 from django.conf import settings
 
-from serializers import UserSerializer, GlobalSerializer, PersonalTagSerializer, UserTagSerializer
+from serializers import UserSerializer, GlobalSerializer, PersonalTagSerializer, UserTagSerializer, AlbumSerializer
 
 
 def test(request):
@@ -294,11 +294,37 @@ def set_user_tags(request):
                 UserTags(user_id=uid, tag_id=tag_id).save()
             except django.db.IntegrityError as e:
                 logging.error(str(e))
-                #return ApiResult(error=str(e))
 
     return ApiResult()
 
 
+@api_view(['GET'])
+def user_album(request):
+    uid = request.GET.get("uid")
+    album = Album.ojbects.filter(deleted=False, user__id=uid)
+    return ApiResult(AlbumSerializer(album).data)
+
+
+@api_view(["POST"])
+def set_album(request):
+    uid = request.POST.get("uid")
+    photo_url = request.POST.get("photourl")
+    exist_albums = Album.ojbects.filter(deleted=False, user__id=uid)
+    if exist_albums.count() >= 8:
+        return ApiResult(code=1, msg="您最多只能上传8张照片")
+    album = Album(user__id=uid, photo_url=photo_url)
+    album.save()
+    return ApiResult()
+
+
+@api_view(["POST"])
+def delete_album(request):
+    uid = request.POST.get("uid")
+    photo_id = request.POST.get("photo_id")
+
+    Album.ojbects.filter(pk=photo_id, user__id=uid, deleted=False).update(deleted=True)
+
+    return ApiResult()
 
 
 
