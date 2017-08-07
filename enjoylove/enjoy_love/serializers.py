@@ -6,7 +6,8 @@ from rest_framework import serializers
 from models import (User, Profile, GlobalSettings,
                     PersonalTag, UserTags, Album,
                     PersonalInterest, UserContact,
-                    ContactType, FilterControl)
+                    ContactType, FilterControl,
+                    FilterOptions)
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -79,7 +80,17 @@ class UserContactSerializer(serializers.ModelSerializer):
         fields = ("id", "uid", "name", "content")
 
 
+class FilterOptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FilterOptions
+        fields = ("option_name", "option_value")
+
+
 class FilterControlSerializer(serializers.ModelSerializer):
+    filter_options = FilterOptionSerializer(many=True, read_only=True)
+
     class Meta:
         model = FilterControl
-        fields = ("id", "name", "param")
+        fields = ("id", "name", "param", "filter_options")
+
+

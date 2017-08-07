@@ -10,7 +10,7 @@ from models import (User, Profile, Vip, IdentityVerify,
                     GlobalSettings, PersonalTag, UserTags,
                     Advertisement, UserContact, ContactType,
                     PersonalInterest, UserInterest, Album,
-                    FilterControl)
+                    FilterControl, FilterOptions)
 from django.utils.safestring import mark_safe
 
 # Register your models here.
@@ -123,10 +123,19 @@ class PersonInterestAdmin(admin.ModelAdmin):
     list_filter = ("valid", )
 
 
+class FilterOptionsInline(admin.StackedInline):
+    model = FilterOptions
+    verbose_name = "筛选选项"
+
+
 @admin.register(FilterControl)
 class FilterControlAdmin(admin.ModelAdmin):
+    inlines = (FilterOptionsInline, )
     list_display = ("name", "param", "valid")
     list_filter = ("valid", )
+
+
+
 
 
 admin.site.unregister(User)

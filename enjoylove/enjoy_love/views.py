@@ -400,6 +400,24 @@ def delete_contact(request):
     return ApiResult("设置成功")
 
 
+@api_view(["GET"])
+def person_list(request):
+    uid = request.GET.get("uid")
+    sex = request.GET.get("sex")
+    min_age = request.GET.get("min_age")
+    query_params = dict()
+    if sex:
+        query_params['sex'] = sex
+    if min_age:
+        query_params['age_']
+
+
+
+
+
+
+
+
 
 
 

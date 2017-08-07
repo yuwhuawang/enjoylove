@@ -54,28 +54,31 @@ class User(AbstractUser):
 
 class Profile(models.Model):
     GENDER_CHOICES = ((0, '不详'), (1, '男'), (2, '女'))
-    EDUCATION_CHOICES = ((0, '未透露'),  (1, "小学"), (2, "中学"), (3, "大学"), (4, "硕士研究生"), (4, "博士研究生"))
-    INCOME_CHOICES = ((0, "未透露"),  (1, "0-5"), (2, "6-10"), (3, "11-15"), (4, "16-20"), (5, "20+"))
-    MARRIAGE_CHOICES = ((0, '未透露'), (1, '未婚'), (2, '已婚'), (3, '离异'), (4, '丧偶'))
-    CHILDREN_CHOICES = ((0, '未透露'), (1, '无'), (2, '有'))
+    EDUCATION_CHOICES = ((0, '未透露'),  (1, "高中"), (2, "大专"), (3, "本科"), (4, "硕士研究生"), (4, "博士研究生"))
+    INCOME_CHOICES = ((0, "未透露"),  (1, "3k以下"), (2, "3k-5k"), (3, "58k"), (4, "8k-12k"), (5, "12k-20k"), (6, "20k-30k"), (7, "30k以上"))
+    MARRIAGE_CHOICES = ((0, '未透露'), (1, '未婚'), (2, '离异'), (3, '丧偶'), )
+    CHILDREN_CAR_HOUSE_CHOICES = ((0, '未透露'), (1, '无'), (2, '有'))
+    EXPECT_MARRY_TIME = ((0, '未透露'), (1, '半年内'), (2, '一年内'))
+    CAREER_CHOICES = ((0, "未透露"), (1, "在校学生"), (2, "私营业主"), (3, "农业劳动者"), (4, "企业职工"), (5, "政府机关/事业单位"), (6, "自由职业"))
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     nickname = models.CharField('用户名', max_length=15, null=True, blank=True, unique=True)
     sex = models.SmallIntegerField('性别', choices=GENDER_CHOICES, default=0)
     person_intro = models.TextField('个人简介', max_length=1000, null=True, blank=True)
     birth_date = models.DateField('出生日期', null=True, blank=True)
     work_area_name = models.CharField("工作地名称", max_length=30, null=True, blank=True)
-    #work_area_code = models.CharField("工作地编码", max_length=15, null=True, blank=True)
+    work_area_code = models.CharField("工作地编码", max_length=15, null=True, blank=True)
     born_area_name = models.CharField("籍贯名称", max_length=30, null=True, blank=True)
-    #born_area_code = models.CharField("籍贯编码", max_length=30, null=True, blank=True)
+    born_area_code = models.CharField("籍贯编码", max_length=30, null=True, blank=True)
     height = models.IntegerField("身高", null=True, blank=True)
     education = models.SmallIntegerField("学历", choices=EDUCATION_CHOICES, default=0)
-    career = models.CharField("职业", max_length=50, null=True, blank=True)
-    income = models.SmallIntegerField("年收入", choices=INCOME_CHOICES, default=0)
-    expect_marry_date = models.DateField("期望结婚时间", null=True, blank=True)
+    career = models.SmallIntegerField("职业", choices=CAREER_CHOICES, default=0)
+    income = models.SmallIntegerField("月收入", choices=INCOME_CHOICES, default=0)
+    expect_marry_date = models.SmallIntegerField("期望结婚时间", choices=EXPECT_MARRY_TIME, default=0)
     nationality = models.CharField("民族", max_length=15, null=True, blank=True)
     marriage_status = models.SmallIntegerField("婚姻状况", choices=MARRIAGE_CHOICES, default=0)
     birth_index = models.IntegerField("家中排行", null=True, blank=True)
-    has_children = models.SmallIntegerField("有无子女", choices=CHILDREN_CHOICES, default=0)
+    has_children = models.SmallIntegerField("有无子女", choices=CHILDREN_CAR_HOUSE_CHOICES, default=0)
     weight = models.IntegerField("体重", null=True, blank=True, help_text="单位(KG)")
     avatar = models.URLField("头像", null=True, blank=True)
     #create_time = models.DateTimeField(auto_now_add=True)
@@ -84,8 +87,8 @@ class Profile(models.Model):
     vip = models.ForeignKey("Vip", on_delete=models.CASCADE, null=True, blank=True)
     vip_expire_date = models.DateField("会员过期日期", null=True, blank=True)
     identity_verified = models.BooleanField("身份认证", default=False)
-    has_car = models.BooleanField("是否购车", default=False)
-    has_house = models.BooleanField("是否购房", default=False)
+    has_car = models.SmallIntegerField("是否购车", choices=CHILDREN_CAR_HOUSE_CHOICES, default=0)
+    has_house = models.SmallIntegerField("是否购房", choices=CHILDREN_CAR_HOUSE_CHOICES, default=0)
     relationship_desc = models.TextField("情感经历", null=True, blank=True)
     mate_preference = models.TextField("择偶标准", null=True, blank=True)
     on_top = models.BooleanField("是否置顶", default=False)
@@ -126,6 +129,22 @@ class FilterControl(models.Model):
 
     def __unicode__(self):
         return self.name
+
+
+class FilterOptions(models.Model):
+    class Meta:
+        verbose_name = "筛选选项"
+        verbose_name_plural = "筛选选项"
+
+    filter = models.ForeignKey("FilterControl",  on_delete=models.CASCADE, related_name="filter_options", related_query_name="filter_options")
+    option_name = models.CharField("选项名称", max_length=20)
+    option_value = models.CharField("选项值", max_length=20)
+
+    def __str__(self):
+        return self.option_name
+
+    def __unicode__(self):
+        return self.option_name
 
 
 class Vip(models.Model):
