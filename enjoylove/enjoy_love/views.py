@@ -11,18 +11,25 @@ from django.contrib import auth
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from enjoy_love.util import create_verify_code
-from enjoy_love.api_result import ApiResult
+from enjoy_love.api_result import ApiResult, BusinessError
 from django.core.cache import cache
+from django.db import transaction
 
 # Create your views here.
-from enjoy_love.models import User, Profile, IdentityVerify, GlobalSettings, PersonalTag, UserTags, Album
+from enjoy_love.models import (User, Profile, IdentityVerify,
+                               GlobalSettings, PersonalTag,
+                               UserTags, Album, PersonalInterest,
+                               UserInterest, UserContact, FilterControl)
 from django.contrib.auth.hashers import make_password
 from rest_framework_jwt.settings import api_settings
 
 from utils.sms import RestAPI as SMSSender
 from django.conf import settings
 
-from serializers import UserSerializer, GlobalSerializer, PersonalTagSerializer, UserTagSerializer, AlbumSerializer
+from serializers import (UserSerializer, GlobalSerializer,
+                         PersonalTagSerializer, UserTagSerializer,
+                         AlbumSerializer, PersonalInterestSerializer,
+                         UserContactSerializer, FilterControlSerializer)
 
 
 def test(request):
@@ -40,13 +47,19 @@ def test(request):
 def init(request):
     global_settings = GlobalSettings.objects.filter(valid=True)
     personal_tags = PersonalTag.objects.filter(valid=True)
+    personal_interests = PersonalInterest.objects.filter(valid=True)
+    filters = FilterControl.objects.filter(valid=True)
 
     global_setting_data = GlobalSerializer(global_settings, many=True)
     personal_tags_data = PersonalTagSerializer(personal_tags, many=True)
+    personal_interests_data = PersonalInterestSerializer(personal_interests, many=True)
+    filters_data = FilterControlSerializer(filters, many=True)
 
     return ApiResult(result={
         "global_settings": global_setting_data.data,
-        "personal_tags": personal_tags_data.data
+        "personal_tags": personal_tags_data.data,
+        "personal_interests": personal_interests_data.data,
+        "filters": filters_data.data
     })
 
 
@@ -61,22 +74,30 @@ def user_init(request):
 
     global_settings = GlobalSettings.objects.filter(valid=True)
     personal_tags = PersonalTag.objects.filter(valid=True)
+    personal_interests = PersonalInterest.objects.filter(valid=True)
+    filters = FilterControl.objects.filter(valid=True)
 
     global_setting_data = GlobalSerializer(global_settings, many=True).data
     personal_tags_data = PersonalTagSerializer(personal_tags, many=True).data
+    psesonal_interests_data = PersonalInterestSerializer(personal_interests, many=True)
+    filters_data = FilterControlSerializer(filters, many=True)
 
     return ApiResult({"user_info": user_info,
                       "global_info": global_setting_data,
-                      "personal_tags": personal_tags_data})
+                      "personal_tags": personal_tags_data,
+                      "personal_interests": psesonal_interests_data.data,
+                      "filters": filters_data.data
+                      })
 
 
 @api_view(['POST'])
 @permission_classes((AllowAny,))
+@transaction.atomic
 def user_register(request):
     username = request.POST.get("mobile")
     password = request.POST.get("password")
     password2 = request.POST.get("password2")
-    nickname = request.POST.get("nickname")
+    nickname = request.POST.get("nickname", "")
     print username, "-----------", password
 
     if password != password2:
@@ -87,10 +108,10 @@ def user_register(request):
             return ApiResult(code=1, msg="用户名已存在，请重新选择")
         new_user = User.objects.create_user(username=username, password=password)
         new_user.profile.nickname = nickname
-        new_user.save()
+        new_user.profile.save()
+
     except django.db.IntegrityError:
         return ApiResult(code=1, msg="手机号已存在,请直接登录")
-
     jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
     jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
@@ -277,7 +298,7 @@ def get_user_tags(request):
 
 
 @api_view(['POST'])
-@django.db.transaction.atomic
+@transaction.atomic
 def set_user_tags(request):
     uid = request.POST.get("uid")
     tag_ids = request.POST.get("tag_ids")
@@ -301,15 +322,15 @@ def set_user_tags(request):
 @api_view(['GET'])
 def user_album(request):
     uid = request.GET.get("uid")
-    album = Album.ojbects.filter(deleted=False, user__id=uid)
-    return ApiResult(AlbumSerializer(album).data)
+    album = Album.objects.filter(deleted=False, user__id=uid)
+    return ApiResult(result=AlbumSerializer(album, many=True).data)
 
 
 @api_view(["POST"])
 def set_album(request):
     uid = request.POST.get("uid")
-    photo_url = request.POST.get("photourl")
-    exist_albums = Album.ojbects.filter(deleted=False, user__id=uid)
+    photo_url = request.POST.get("photo_url")
+    exist_albums = Album.objects.filter(deleted=False, user__id=uid)
     if exist_albums.count() >= 8:
         return ApiResult(code=1, msg="您最多只能上传8张照片")
     album = Album(user__id=uid, photo_url=photo_url)
@@ -320,11 +341,64 @@ def set_album(request):
 @api_view(["POST"])
 def delete_album(request):
     uid = request.POST.get("uid")
-    photo_id = request.POST.get("photo_id")
+    photo_ids = request.POST.get("photo_ids")
+    if not photo_ids:
+        return BusinessError("请传入photo_ids")
+    photo_ids = photo_ids.split(",")
+    result = list()
 
-    Album.ojbects.filter(pk=photo_id, user__id=uid, deleted=False).update(deleted=True)
+    for photo_id in photo_ids:
+        try:
+            album = Album.objects.get(pk=photo_id)
+        except:
+            result.append({"photo_id": photo_id, "result": "照片不存在"})
+            continue
+        if album.deleted:
+            result.append({"photo_id": photo_id, "result": "照片已被删除"})
 
-    return ApiResult()
+            continue
+
+        if album.user.id != uid:
+            result.append({"photo_id": photo_id, "result": "无权删除"})
+            continue
+
+        album.deleted = True
+        album.save()
+        result.append({"photo_id": photo_id, "result": "删除成功"})
+    return ApiResult(result={"status": result})
+
+
+@api_view(["GET"])
+def user_contact(request):
+    uid = request.GET.get("uid")
+    user_contacts = UserContact.objects.filter(user__id=uid, deleted=False)
+    user_contacts = UserContactSerializer(user_contacts, many=True)
+    return ApiResult({"contacts": user_contacts.data})
+
+
+@api_view(["POST"])
+def set_contact(request):
+    uid = request.POST.get("uid")
+    contact_name = request.POST.get("type")
+    contact_content = request.POST.get("content")
+
+    contact = UserContact.objects.get(user__id=uid, type__name=contact_name)
+    contact.content = contact_content
+    contact.save()
+    return ApiResult("设置成功")
+
+
+@api_view(["POST"])
+def delete_contact(request):
+    uid = request.POST.get("uid")
+    contact_name = request.POST.get("type")
+    #contact_content = request.POST.get("content")
+
+    contact = UserContact.objects.get(user__id=uid, type__name=contact_name)
+    contact.deleted = True
+    contact.save()
+    return ApiResult("设置成功")
+
 
 
 

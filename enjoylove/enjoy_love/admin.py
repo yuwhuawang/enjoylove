@@ -6,7 +6,11 @@ from django.contrib import admin
 
 from django.contrib.auth.admin import UserAdmin
 
-from models import User, Profile, Vip, IdentityVerify, GlobalSettings, PersonalTag, UserTags
+from models import (User, Profile, Vip, IdentityVerify,
+                    GlobalSettings, PersonalTag, UserTags,
+                    Advertisement, UserContact, ContactType,
+                    PersonalInterest, UserInterest, Album,
+                    FilterControl)
 from django.utils.safestring import mark_safe
 
 # Register your models here.
@@ -16,6 +20,7 @@ class ProfileInline(admin.StackedInline):
     model = Profile
     verbose_name = '用户信息'
     list_display = ("nickname", "sex")
+    list_filter = ("sex", "vip", "has_child", "has_car")
 
 
 class UserTagInline(admin.StackedInline):
@@ -23,8 +28,25 @@ class UserTagInline(admin.StackedInline):
     verbose_name = "用户标签"
 
 
+class UserInterestInline(admin.StackedInline):
+    model = UserInterest
+    verbose_name = "用户兴趣爱好"
+
+
+class UserContactInfoInline(admin.StackedInline):
+    model = UserContact
+    verbose_name = "用户通讯信息"
+
+
+class UserAlbumInline(admin.TabularInline):
+    model = Album
+    verbose_name = "用户相册"
+    fields = ("photo_url",)
+
+
 class UserProfileAdmin(UserAdmin):
-    inlines = (ProfileInline, UserTagInline)
+    inlines = (ProfileInline, UserTagInline, UserContactInfoInline,
+               UserInterestInline, UserAlbumInline)
 
     def nickname(self, obj):
         return obj.profile.nickname
@@ -44,11 +66,11 @@ class UserProfileAdmin(UserAdmin):
         else:
             return "默认图片"
 
-    list_display = ("username", "last_login", "nickname", "sex", "vip")
+    list_display = ("username", "nickname", "sex", "vip")
+    list_filter = ("profile__sex", "profile__vip", "profile__has_children", "profile__has_car")
 
     nickname.short_description = '昵称'
     sex.short_description = '性别'
-
 
 
 @admin.register(Vip)
@@ -79,6 +101,31 @@ class GlobalSettingAdmin(admin.ModelAdmin):
 @admin.register(PersonalTag)
 class PersonTagAdmin(admin.ModelAdmin):
     list_display = ("name", "valid")
+    list_filter = ("valid", )
+
+
+@admin.register(Advertisement)
+class AdvertisementAdmin(admin.ModelAdmin):
+    exclude = ("create_time", "update_time")
+    list_filter = ("valid", "expire_time", "show_place", "show_page", "show_position")
+
+
+@admin.register(ContactType)
+class ContactTypeAdmin(admin.ModelAdmin):
+    list_display = ("name", "valid")
+    #exclude = ("create_time", "update_time")
+    list_filter = ("valid", )
+
+
+@admin.register(PersonalInterest)
+class PersonInterestAdmin(admin.ModelAdmin):
+    list_display = ("name", "valid")
+    list_filter = ("valid", )
+
+
+@admin.register(FilterControl)
+class FilterControlAdmin(admin.ModelAdmin):
+    list_display = ("name", "param", "valid")
     list_filter = ("valid", )
 
 

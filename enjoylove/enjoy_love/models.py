@@ -59,14 +59,14 @@ class Profile(models.Model):
     MARRIAGE_CHOICES = ((0, '未透露'), (1, '未婚'), (2, '已婚'), (3, '离异'), (4, '丧偶'))
     CHILDREN_CHOICES = ((0, '未透露'), (1, '无'), (2, '有'))
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    nickname = models.CharField('用户名', max_length=15, blank=True, unique=True)
+    nickname = models.CharField('用户名', max_length=15, null=True, blank=True, unique=True)
     sex = models.SmallIntegerField('性别', choices=GENDER_CHOICES, default=0)
     person_intro = models.TextField('个人简介', max_length=1000, null=True, blank=True)
     birth_date = models.DateField('出生日期', null=True, blank=True)
     work_area_name = models.CharField("工作地名称", max_length=30, null=True, blank=True)
-    work_area_code = models.CharField("工作地编码", max_length=15, null=True, blank=True)
+    #work_area_code = models.CharField("工作地编码", max_length=15, null=True, blank=True)
     born_area_name = models.CharField("籍贯名称", max_length=30, null=True, blank=True)
-    born_area_code = models.CharField("籍贯编码", max_length=30, null=True, blank=True)
+    #born_area_code = models.CharField("籍贯编码", max_length=30, null=True, blank=True)
     height = models.IntegerField("身高", null=True, blank=True)
     education = models.SmallIntegerField("学历", choices=EDUCATION_CHOICES, default=0)
     career = models.CharField("职业", max_length=50, null=True, blank=True)
@@ -88,6 +88,7 @@ class Profile(models.Model):
     has_house = models.BooleanField("是否购房", default=False)
     relationship_desc = models.TextField("情感经历", null=True, blank=True)
     mate_preference = models.TextField("择偶标准", null=True, blank=True)
+    on_top = models.BooleanField("是否置顶", default=False)
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -103,6 +104,28 @@ class Profile(models.Model):
             except:
                 pass
         super(Profile, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.user.username
+
+    def __unicode__(self):
+        return self.user.username
+
+
+class FilterControl(models.Model):
+    class Meta:
+        verbose_name = "首页筛选条件"
+        verbose_name_plural = "首页筛选条件"
+
+    name = models.CharField("筛选条件", max_length=20)
+    param = models.CharField("筛选参数", max_length=20)
+    valid = models.BooleanField("是否有效", default=True)
+
+    def __str__(self):
+        return self.name
+
+    def __unicode__(self):
+        return self.name
 
 
 class Vip(models.Model):
@@ -128,12 +151,41 @@ class Vip(models.Model):
         return self.vip_type
 
 
-class Contact(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="contact", related_query_name="contact")
-    type = models.CharField("联系方式类型", max_length=20)
-    content = models.CharField("联系方式内容", max_length=20)
+class ContactType(models.Model):
+    class Meta:
+        verbose_name = "联系方式"
+        verbose_name_plural = "联系方式"
+
+    name = models.CharField("信息类型", max_length=25)
+    valid = models.BooleanField("是否有效", default=True)
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    def __unicode__(self):
+        return self.name
+
+
+class UserContact(models.Model):
+
+    class Meta:
+        verbose_name = "个人通讯信息"
+        verbose_name_plural = "个人通讯信息"
+        unique_together = ("user", "type")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="contacts", related_query_name="contacts")
+    type = models.ForeignKey("ContactType", verbose_name="联系方式", on_delete=models.CASCADE, related_name="contacts", related_query_name="contacts")
+    content = models.CharField("联系方式内容", max_length=20)
+    deleted = models.BooleanField("是否删除", default=False)
+    create_time = models.DateTimeField(auto_now_add=True)
+    update_time = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.type.name
+
+    def __unicode__(self):
+        return self.type.name
 
 
 class PersonalTag(models.Model):
@@ -158,7 +210,7 @@ class UserTags(models.Model):
         verbose_name = "用户标签"
         verbose_name_plural = "用户标签"
         unique_together = ("user", "tag")
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tags", related_query_name="tags")
+    user = models.ForeignKey(User, verbose_name="标签", on_delete=models.CASCADE, related_name="tags", related_query_name="tags")
     tag = models.ForeignKey(PersonalTag)
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
@@ -171,24 +223,57 @@ class UserTags(models.Model):
 
 
 class PersonalInterest(models.Model):
+    class Meta:
+        verbose_name = "兴趣爱好设置"
+        verbose_name_plural = "兴趣爱好设置"
+
     name = models.CharField("兴趣爱好", max_length=20)
+    valid = models.BooleanField("是否有效", default=True)
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    def __unicode__(self):
+        return self.name
 
 
 class UserInterest(models.Model):
+
+    class Meta:
+        verbose_name = "兴趣爱好"
+        verbose_name_plural = "兴趣爱好"
+        unique_together = ("user", "interest")
+
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="interest", related_query_name="interest")
-    interest = models.CharField(max_length=20)
+    interest = models.ForeignKey("PersonalInterest", on_delete=models.CASCADE, related_name="interest", related_query_name="interest", verbose_name="兴趣")
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return self.interest.name
+
+    def __unicode__(self):
+        return self.interest.name
+
 
 class Album(models.Model):
+    class Meta:
+        verbose_name = "相册"
+        verbose_name_plural = "相册"
+
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="albums", related_query_name="albums",)
-    photo_url = models.URLField("图片地址")
+    photo_url = models.TextField("图片地址")
     upload_time = models.DateTimeField(auto_now_add=True)
     deleted = models.BooleanField("是否删除", default=False)
-    delete_time = models.DateTimeField()
+    delete_time = models.DateTimeField(null=True)
+
+    def __str__(self):
+        return str(self.id)
+
+    def __unicode__(self):
+        return unicode(self.id)
 
 
 class IdentityVerify(models.Model):
@@ -217,6 +302,29 @@ class GlobalSettings(models.Model):
     valid = models.BooleanField("是否有效", default=True)
 
 
+class Advertisement(models.Model):
+    class Meta:
+        verbose_name = "广告设置"
+        verbose_name_plural = "广告设置"
+
+    SHOW_PLACE_CHOISES=((0, "所有位置"), (1, "人物列表页"), (2, "文章列表页"))
+    name = models.CharField("广告条目", max_length=25)
+    url = models.URLField("跳转地址")
+    valid = models.BooleanField("是否有效", default=True)
+    expire_time = models.DateTimeField("过期时间", null=True)
+    show_place = models.SmallIntegerField("展示的tab", choices=SHOW_PLACE_CHOISES)
+    show_page = models.IntegerField("展示的页数", default=1)
+    show_position = models.IntegerField("展示的位置", default=10)
+    create_time = models.DateTimeField(auto_now_add=True)
+    update_time = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    def __unicode__(self):
+        return self.name
+
+
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         profile = Profile()
@@ -226,7 +334,7 @@ def create_user_profile(sender, instance, created, **kwargs):
 post_save.connect(create_user_profile, User)
 
 
-@receiver(post_save, sender=IdentityVerify)
+@receiver(post_save, sender=IdentityVerify, )
 def update_verify_status(sender, instance, **kwargs):
     user = User.objects.get(pk=instance.user.id)
     if instance.status == 1:
@@ -235,5 +343,6 @@ def update_verify_status(sender, instance, **kwargs):
     else:
         user.profile.identity_verified = False
         user.profile.save()
+
 
 
