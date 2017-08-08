@@ -479,8 +479,8 @@ def person_list(request):
     else:
         user_list = User.objects.filter(**query_params)
 
-    person_list = PersonListSerializer(user_list, many=True).data()
-    return ApiResult(person_list)
+    person_list = PersonListSerializer(user_list, many=True)
+    return ApiResult(result=person_list.data)
 
 
 

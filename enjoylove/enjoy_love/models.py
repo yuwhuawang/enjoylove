@@ -83,9 +83,6 @@ class Profile(models.Model):
     has_children = models.SmallIntegerField("有无子女", choices=CHILDREN_CAR_HOUSE_CHOICES, default=0)
     weight = models.IntegerField("体重", null=True, blank=True, help_text="单位(KG)")
     avatar = models.URLField("头像", null=True, blank=True)
-    #create_time = models.DateTimeField(auto_now_add=True)
-    #update_time = models.DateTimeField(auto_now=True)
-    #login_time = models.DateTimeField(auto_now_add=True)
     vip = models.ForeignKey("Vip", on_delete=models.CASCADE, null=True, blank=True)
     vip_expire_date = models.DateField("会员过期日期", null=True, blank=True)
     identity_verified = models.BooleanField("身份认证", default=False)
@@ -95,6 +92,7 @@ class Profile(models.Model):
     mate_preference = models.TextField("择偶标准", null=True, blank=True)
     on_top = models.BooleanField("是否置顶", default=False)
     age = models.IntegerField("年龄", default=0)
+    like = models.IntegerField("心动人数", default=0)
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -351,6 +349,17 @@ class Advertisement(models.Model):
 
     def __unicode__(self):
         return self.name
+
+
+class LikeRecord(models.Model):
+    class Meta:
+        verbose_name = "心动记录"
+        verbose_name_plural = "心动记录"
+
+    like_from = models.ForeignKey(User, on_delete=models.CASCADE, related_name="likerecord", related_query_name="likerecord")
+    like_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name="liketorecord", related_query_name="liketorecord")
+    valid = models.BooleanField("是否有效", default=True)
+    create_time = models.DateTimeField(auto_now_add=True)
 
 
 def create_user_profile(sender, instance, created, **kwargs):

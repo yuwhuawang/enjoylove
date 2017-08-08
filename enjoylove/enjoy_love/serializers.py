@@ -95,15 +95,22 @@ class FilterControlSerializer(serializers.ModelSerializer):
 
 
 class PersonListSerializer(serializers.ModelSerializer):
-    profile = ProfileSerializer
-    albums = AlbumSerializer(many=True, read_only=True)[0]
+    #profile = ProfileSerializer()
+    #albums = AlbumSerializer(many=True, read_only=True)
 
     uid = serializers.IntegerField(source="id")
     account = serializers.CharField(source="username")
     identity_verified = serializers.IntegerField(source="profile.identity_verified")
+    nickname = serializers.CharField(source="profile.nickname")
+    work_area = serializers.CharField(source="profile.work_area_name")
+    age = serializers.IntegerField(source="profile.age")
+    height = serializers.IntegerField(source="profile.height")
+    career = serializers.CharField(source="profile.career")
+    income = serializers.CharField(source="profile.income")
+    person_intro = serializers.CharField(source="profile.person_intro")
+    like = serializers.IntegerField(source="profile.like")
 
     class Meta:
         model = User
-        fields = ("uid", "account", "identity_verified", "albums")
-
+        fields = ("uid", "account", "identity_verified", "nickname", "work_area", "age", "height", "career", "income", "person_intro", "like")
 
