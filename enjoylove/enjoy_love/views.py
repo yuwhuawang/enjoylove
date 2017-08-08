@@ -19,7 +19,7 @@ from django.db import transaction
 from enjoy_love.models import (User, Profile, IdentityVerify,
                                GlobalSettings, PersonalTag,
                                UserTags, Album, PersonalInterest,
-                               UserInterest, UserContact, FilterControl)
+                               UserInterest, UserContact, FilterControl,)
 from django.contrib.auth.hashers import make_password
 from rest_framework_jwt.settings import api_settings
 
@@ -29,7 +29,8 @@ from django.conf import settings
 from serializers import (UserSerializer, GlobalSerializer,
                          PersonalTagSerializer, UserTagSerializer,
                          AlbumSerializer, PersonalInterestSerializer,
-                         UserContactSerializer, FilterControlSerializer)
+                         UserContactSerializer, FilterControlSerializer,
+                         PersonListSerializer)
 
 
 def test(request):
@@ -233,6 +234,7 @@ def verify_identity(request):
 def set_basic_info(request):
     uid = request.POST.get("uid")
     nickname = request.POST.get("nickname")
+    birth_date = request.POST.get("birth_date")
     work_area_name = request.POST.get("work_area_name")
     work_area_code = request.POST.get("work_area_code")
     born_area_name = request.POST.get("born_area_name")
@@ -279,7 +281,7 @@ def set_basic_info(request):
     user.profile.has_car = has_car if has_car else user.profile.has_car
     user.profile.has_house = has_house if has_house else user.profile.has_house
     user.profile.person_intro = person_intro if person_intro else user.profile.person_intro
-
+    user.profile.birth_date = birth_date if birth_date else user.profile.birth_date
 
     user.profile.save()
 
@@ -403,9 +405,30 @@ def delete_contact(request):
 @api_view(["GET"])
 def person_list(request):
     uid = request.GET.get("uid")
+
+    start_page = request.GET.get("start_page")
+    page_size = request.GET.get("page_size")
+
     sex = request.GET.get("sex")
     min_age = request.GET.get("min_age")
     max_age = request.GET.get("max_age")
+    work_area_code = request.GET.get("work_area_code")
+    born_area_code = request.GET.get("born_area_code")
+    min_height = request.GET.get("min_height")
+    max_height = request.GET.get("max_height")
+    education = request.GET.get("education")
+    career = request.GET.get("career")
+    income = request.GET.get("income")
+    expect_marry_date = request.GET.get("expect_marry_date")
+    nationality = request.GET.get("nationality")
+    marriage_status = request.GET.get("marriage_status")
+    birth_index = request.GET.get("birth_index")
+    min_weight = request.GET.get("min_weight")
+    max_weight = request.GET.get("max_weight")
+    has_car = request.GET.get("has_car")
+    has_children = request.GET.get("has_children")
+    has_house = request.GET.get("has_house")
+
     query_params = dict()
     query_params['id'] = uid
 
@@ -415,11 +438,49 @@ def person_list(request):
         query_params['profile__age__gte'] = min_age
     if max_age:
         query_params['profile__age__lte'] = max_age
+    if work_area_code:
+        query_params['profile__work_area_code'] = work_area_code
+    if born_area_code:
+        query_params['profile__born_area_code'] = born_area_code
 
-    user = User.objects.filter(**query_params)[0]
-    user.profile.birth_date="1990-01-01"
-    user.profile.save()
-    return ApiResult()
+    if min_height:
+        query_params['profile__min_height__gte'] = min_height
+    if max_height:
+        query_params['profile__max_height__lte'] = max_height
+    if education:
+        query_params['profile__education'] = education
+    if career:
+        query_params['profile__career'] = career
+    if income:
+        query_params['profile__income'] = income
+    if expect_marry_date:
+        query_params['profile__expect_marry_date'] = expect_marry_date
+    if nationality:
+        query_params['profile__nationality'] = nationality
+    if marriage_status:
+        query_params['profile__marriage_status'] = marriage_status
+    if birth_index:
+        query_params['profile__birth_index'] = birth_index
+    if min_weight:
+        query_params['profile__min_weight__gte'] = min_weight
+    if max_weight:
+        query_params['profile__max_weight__lte'] = max_weight
+    if has_car:
+        query_params['profile__has_car'] = has_car
+    if has_children:
+        query_params['profile__has_children'] = has_children
+    if has_house:
+        query_params['profile__has_house'] = has_house
+
+    total_size = User.objects.filter(**query_params).count()
+    if start_page and page_size:
+
+        user_list = User.objects.filter(**query_params)[start_page*page_size: (start_page+1)*page_size]
+    else:
+        user_list = User.objects.filter(**query_params)
+
+    person_list = PersonListSerializer(user_list, many=True).data()
+    return ApiResult(person_list)
 
 
 

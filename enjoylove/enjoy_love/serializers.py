@@ -94,3 +94,16 @@ class FilterControlSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "param", "filter_options")
 
 
+class PersonListSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer
+    albums = AlbumSerializer(many=True, read_only=True)[0]
+
+    uid = serializers.IntegerField(source="id")
+    account = serializers.CharField(source="username")
+    identity_verified = serializers.IntegerField(source="profile.identity_verified")
+
+    class Meta:
+        model = User
+        fields = ("uid", "account", "identity_verified", "albums")
+
+
