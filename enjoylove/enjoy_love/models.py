@@ -8,6 +8,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import AbstractUser, BaseUserManager, UserManager
 import time
+import datetime
+from django.db.models.functions import ExtractYear
 # Create your models here.
 
 
@@ -110,7 +112,8 @@ class Profile(models.Model):
 
         if self.birth_date:
             current_year = int(time.strftime('%Y', time.localtime(time.time())))
-            self.age = current_year - int(self.birth_date.strftime('%Y'))
+            born_year = int(datetime.datetime.strptime(self.birth_date, "%Y-%m-%d").year)
+            self.age = current_year - born_year
 
         super(Profile, self).save(*args, **kwargs)
 

@@ -416,7 +416,9 @@ def person_list(request):
     if max_age:
         query_params['profile__age__lte'] = max_age
 
-    user = User.objects.filter(**query_params)
+    user = User.objects.filter(**query_params)[0]
+    user.profile.birth_date="1990-01-01"
+    user.profile.save()
     return ApiResult()
 
 
