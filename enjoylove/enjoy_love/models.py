@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import AbstractUser, BaseUserManager, UserManager
-
+import time
 # Create your models here.
 
 
@@ -92,6 +92,7 @@ class Profile(models.Model):
     relationship_desc = models.TextField("情感经历", null=True, blank=True)
     mate_preference = models.TextField("择偶标准", null=True, blank=True)
     on_top = models.BooleanField("是否置顶", default=False)
+    age = models.IntegerField("年龄", default=0)
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -106,6 +107,11 @@ class Profile(models.Model):
                 self.vip = Vip.objects.get(id=1)
             except:
                 pass
+
+        if self.birth_date:
+            current_year = int(time.strftime('%Y', time.localtime(time.time())))
+            self.age = current_year - int(self.birth_date.strftime('%Y'))
+
         super(Profile, self).save(*args, **kwargs)
 
     def __str__(self):

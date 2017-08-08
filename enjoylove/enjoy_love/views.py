@@ -405,11 +405,21 @@ def person_list(request):
     uid = request.GET.get("uid")
     sex = request.GET.get("sex")
     min_age = request.GET.get("min_age")
+    max_age = request.GET.get("max_age")
     query_params = dict()
+    query_params['id'] = uid
+
     if sex:
-        query_params['sex'] = sex
+        query_params['profile__sex'] = sex
     if min_age:
-        query_params['age_']
+        query_params['profile__age__gte'] = min_age
+    if max_age:
+        query_params['profile__age__lte'] = max_age
+
+    user = User.objects.filter(**query_params)
+    return ApiResult()
+
+
 
 
 
