@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework_swagger',
     'rest_framework_docs',
+    'DjangoUeditor',
+
 
 ]
 
@@ -125,9 +127,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'zh-CN'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
@@ -264,3 +266,6 @@ SMS_OPERATION = "templateSMS"
 
 
 #AUTH_USER_MODEL = 'enjoy_love.User'
+
+GRAPPELLI_ADMIN_TITLE = "enjoylove"
+GRAPPELLI_SWITCH_USER = True

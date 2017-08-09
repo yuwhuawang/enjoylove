@@ -19,7 +19,8 @@ from django.core.paginator import Paginator
 from enjoy_love.models import (User, Profile, IdentityVerify,
                                GlobalSettings, PersonalTag,
                                UserTags, Album, PersonalInterest,
-                               UserInterest, UserContact, FilterControl,)
+                               UserInterest, UserContact, FilterControl,
+                               Advertisement)
 from django.contrib.auth.hashers import make_password
 from rest_framework_jwt.settings import api_settings
 
@@ -31,6 +32,12 @@ from serializers import (UserSerializer, GlobalSerializer,
                          AlbumSerializer, PersonalInterestSerializer,
                          UserContactSerializer, FilterControlSerializer,
                          PersonListSerializer)
+
+import datetime
+from collections import OrderedDict, defaultdict
+
+
+
 
 
 def test(request):
@@ -175,10 +182,30 @@ def verify_sms_code(request):
     return ApiResult(code=1, msg="验证失败")
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 @permission_classes((AllowAny,))
+def forgot_password(request):
+    mobile = request.POST.get("mobile")
+    password = request.POST.get("password")
+    password2 = request.POST.get("password2")
+    if password != password2:
+        return ApiResult(code=1, msg="两次密码不一致")
+    user = User.objects.get(mobile=mobile)
+    if not user:
+        return ApiResult(code=1, msg="您的手机尚未注册")
+    user.password = make_password(password)
+    user.save()
+    return ApiResult(code=0, msg="重置密码成功")
+
+
+@api_view(['POST'])
 def reset_password(request):
     mobile = request.POST.get("mobile")
+    old_password = request.POST.get("old_pwd")
+    user = auth.authenticate(username=mobile, password=old_password)
+    if not user:
+        return BusinessError("用户名或密码不正确")
+
     password = request.POST.get("password")
     password2 = request.POST.get("password2")
     if password != password2:
@@ -403,12 +430,14 @@ def delete_contact(request):
 
 
 @api_view(["GET"])
+@permission_classes((AllowAny, ))
 def person_list(request):
     uid = request.GET.get("uid")
 
     offset = request.GET.get("offset", 0)
-    limit = request.GET.get("limit", 20)
+    limit = request.GET.get("limit", 10)
 
+    is_student = request.GET.get("is_student")
     sex = request.GET.get("sex")
     min_age = request.GET.get("min_age")
     max_age = request.GET.get("max_age")
@@ -472,18 +501,50 @@ def person_list(request):
     if has_house:
         query_params['profile__has_house'] = has_house
 
+    if is_student is not None:
+        if is_student == 0:
+            query_params["profile__career"] = 0
+        if is_student == 1:
+            query_params["profile_career__in"] = [0, 2, 3, 4, 5, 6]
+
     total_size = User.objects.filter(**query_params).count()
 
-    offset = int(offset)
+    page = int(offset) + 1
     limit = int(limit)
 
     #tops = User.objects.filter(profile__on_top=True, **query_params)
     user_list = User.objects.filter(**query_params).order_by("-profile__on_top", "?")
 
     paginator = Paginator(user_list, limit)
-    person_list = PersonListSerializer(paginator.page(offset+1), many=True)
-    return ApiResult(result=person_list.data)
+    person_list = PersonListSerializer(paginator.page(page), many=True).data
 
+    advertisements = Advertisement.objects.filter(valid=True, expire_time__gt=datetime.datetime.now(),  show_place__in=[0, 1], show_page=page)
+
+    for ad in advertisements:
+        ad_result = OrderedDict()
+        ad_result["uid"] = 0
+        ad_result["account"] = ""
+        ad_result["identity_verified"] = ""
+        ad_result["nickname"] = ""
+        ad_result["work_area"] = ""
+        ad_result["age"] = ""
+        ad_result["height"] = 0
+        ad_result["career"] = 0
+        ad_result["income"] = 0
+        ad_result["person_intro"] = 0
+        ad_result["like"] = 0
+        ad_result["type"] = 2
+        ad_result["content"] = {
+            "name": ad.name,
+            "img": ad.img,
+            "desc": ad.desc,
+            "url": ad.url
+        }
+        ad_position = ad.show_position if ad.show_position <= limit else limit
+        person_list.insert(ad_position, ad_result)
+
+    return ApiResult(result={"total": total_size,
+                              "person_list": person_list})
 
 
 

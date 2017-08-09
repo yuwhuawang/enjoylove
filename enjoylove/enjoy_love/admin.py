@@ -45,6 +45,7 @@ class UserAlbumInline(admin.TabularInline):
 
 
 class UserProfileAdmin(UserAdmin):
+
     inlines = (ProfileInline, UserTagInline, UserContactInfoInline,
                UserInterestInline, UserAlbumInline)
 
@@ -59,6 +60,7 @@ class UserProfileAdmin(UserAdmin):
             return obj.profile.vip.vip_type
         except AttributeError:
             return "-"
+
 
     def avatar(self, obj):
         if self.image:

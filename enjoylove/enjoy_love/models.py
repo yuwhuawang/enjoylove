@@ -6,11 +6,16 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from tinymce.widgets import TinyMCE
+
 from django.contrib.auth.models import AbstractUser, BaseUserManager, UserManager
 import time
 import datetime
 from django.db.models.functions import ExtractYear
+from DjangoUeditor.models import UEditorField
+
 # Create your models here.
+
 
 
 
@@ -56,7 +61,7 @@ class User(AbstractUser):
 
 class Profile(models.Model):
     GENDER_CHOICES = ((0, '不详'), (1, '男'), (2, '女'))
-    EDUCATION_CHOICES = ((0, '未透露'),  (1, "高中"), (2, "大专"), (3, "本科"), (4, "硕士研究生"), (4, "博士研究生"))
+    EDUCATION_CHOICES = ((0, '未透露'),  (1, "高中"), (2, "大专"), (3, "本科"), (4, "硕士研究生"), (5, "博士研究生"))
     INCOME_CHOICES = ((0, "未透露"),  (1, "3k以下"), (2, "3k-5k"), (3, "58k"), (4, "8k-12k"), (5, "12k-20k"), (6, "20k-30k"), (7, "30k以上"))
     MARRIAGE_CHOICES = ((0, '未透露'), (1, '未婚'), (2, '离异'), (3, '丧偶'), )
     CHILDREN_CAR_HOUSE_CHOICES = ((0, '未透露'), (1, '无'), (2, '有'))
@@ -66,7 +71,8 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     nickname = models.CharField('用户名', max_length=15, null=True, blank=True, unique=True)
     sex = models.SmallIntegerField('性别', choices=GENDER_CHOICES, default=0)
-    person_intro = models.TextField('个人简介', max_length=1000, null=True, blank=True)
+    person_intro = UEditorField("个人简介",null=True,)
+    #person_intro = models.TextField('个人简介',  max_length=1000, null=True, blank=True)
     birth_date = models.DateField('出生日期', null=True, blank=True)
     work_area_name = models.CharField("工作地名称", max_length=30, null=True, blank=True)
     work_area_code = models.CharField("工作地编码", max_length=15, null=True, blank=True)
@@ -335,6 +341,8 @@ class Advertisement(models.Model):
 
     SHOW_PLACE_CHOISES=((0, "所有位置"), (1, "人物列表页"), (2, "文章列表页"))
     name = models.CharField("广告条目", max_length=25)
+    desc = models.TextField("广告文字")
+    img = models.TextField("图片")
     url = models.URLField("跳转地址")
     valid = models.BooleanField("是否有效", default=True)
     expire_time = models.DateTimeField("过期时间", null=True)

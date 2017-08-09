@@ -109,8 +109,10 @@ class PersonListSerializer(serializers.ModelSerializer):
     income = serializers.CharField(source="profile.income")
     person_intro = serializers.CharField(source="profile.person_intro")
     like = serializers.IntegerField(source="profile.like")
+    type = serializers.IntegerField(default=1)
+    content = serializers.DictField(default={})
 
     class Meta:
         model = User
-        fields = ("uid", "account", "identity_verified", "nickname", "work_area", "age", "height", "career", "income", "person_intro", "like")
+        fields = ("uid", "account", "identity_verified", "nickname", "work_area", "age", "height", "career", "income", "person_intro", "like", "type", "content")
 
