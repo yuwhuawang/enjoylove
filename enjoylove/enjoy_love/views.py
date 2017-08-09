@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import django.core.cache
 import django.db
 import django.db.transaction
 import django.http
@@ -12,9 +11,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from enjoy_love.util import create_verify_code
 from enjoy_love.api_result import ApiResult, BusinessError
-from django.core.cache import cache
+#from django.core.cache import cache
 from django.db import transaction
-
+from django.core import cache
+from django.core.paginator import Paginator
 # Create your views here.
 from enjoy_love.models import (User, Profile, IdentityVerify,
                                GlobalSettings, PersonalTag,
@@ -145,9 +145,9 @@ def user_login(request):
 @permission_classes((AllowAny,))
 def gen_sms_code(request):
     mobile = request.GET.get("mobile")
-    exist_code = cache.get(mobile)
+    exist_code = cache.cache.get(mobile)
     sms_code = exist_code if exist_code else create_verify_code()
-    cache.set(mobile, sms_code, 60)
+    cache.cache.set(mobile, sms_code, 60)
     send_result = SMSSender().templateSMS(accountSid=settings.SMS_ACCOUNTSID,
                                           accountToken=settings.SMS_AUTHTOKEN,
                                           appId=settings.SMS_APPID,
@@ -169,7 +169,7 @@ def gen_sms_code(request):
 def verify_sms_code(request):
     client_sms_code = request.GET.get("verify_code")
     mobile = request.GET.get("mobile")
-    server_sms_code = cache.get(mobile)
+    server_sms_code = cache.cache.get(mobile)
     if client_sms_code == server_sms_code:
         return ApiResult(code=0, msg="验证成功")
     return ApiResult(code=1, msg="验证失败")
@@ -406,8 +406,8 @@ def delete_contact(request):
 def person_list(request):
     uid = request.GET.get("uid")
 
-    start_page = request.GET.get("start_page")
-    page_size = request.GET.get("page_size")
+    offset = request.GET.get("offset", 0)
+    limit = request.GET.get("limit", 20)
 
     sex = request.GET.get("sex")
     min_age = request.GET.get("min_age")
@@ -430,7 +430,7 @@ def person_list(request):
     has_house = request.GET.get("has_house")
 
     query_params = dict()
-    query_params['id'] = uid
+    #query_params['id'] = uid
 
     if sex:
         query_params['profile__sex'] = sex
@@ -473,13 +473,15 @@ def person_list(request):
         query_params['profile__has_house'] = has_house
 
     total_size = User.objects.filter(**query_params).count()
-    if start_page and page_size:
 
-        user_list = User.objects.filter(**query_params)[start_page*page_size: (start_page+1)*page_size]
-    else:
-        user_list = User.objects.filter(**query_params)
+    offset = int(offset)
+    limit = int(limit)
 
-    person_list = PersonListSerializer(user_list, many=True)
+    #tops = User.objects.filter(profile__on_top=True, **query_params)
+    user_list = User.objects.filter(**query_params).order_by("-profile__on_top", "?")
+
+    paginator = Paginator(user_list, limit)
+    person_list = PersonListSerializer(paginator.page(offset), many=True)
     return ApiResult(result=person_list.data)
 
 

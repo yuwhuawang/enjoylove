@@ -88,7 +88,8 @@ WSGI_APPLICATION = 'enjoylove.wsgi.application'
 DB_NAME = 'enjoylove'
 DB_USERNAME = 'yuwhuawang'
 DB_PASSWORD = 'wyhwyh22'
-DB_HOST = '123.206.174.249'
+#DB_HOST = '123.206.174.249'
+DB_HOST = '127.0.0.1'
 DB_PORT = '3306'
 
 
