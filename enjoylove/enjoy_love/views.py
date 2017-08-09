@@ -481,7 +481,7 @@ def person_list(request):
     user_list = User.objects.filter(**query_params).order_by("-profile__on_top", "?")
 
     paginator = Paginator(user_list, limit)
-    person_list = PersonListSerializer(paginator.page(offset), many=True)
+    person_list = PersonListSerializer(paginator.page(offset+1), many=True)
     return ApiResult(result=person_list.data)
 
 
