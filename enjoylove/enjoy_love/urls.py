@@ -4,7 +4,7 @@ from views import (user_login, user_register, verify_sms_code, gen_sms_code,
                    forgot_password, reset_password,
                    test, upload_avatar, set_gender, verify_identity, set_basic_info,
                    get_user_tags, set_user_tags, user_init, user_album, set_album,
-                   delete_album, user_contact, set_contact, person_list)
+                   delete_album, user_contact, set_contact, person_list, person_detail)
 urlpatterns = [
     url(r'^init', user_init),
     url(r'^login', user_login),
@@ -25,5 +25,6 @@ urlpatterns = [
     url(r'^delete/albums', delete_album),
     url(r'^contacts', user_contact),
     url(r'^set/contact', set_contact),
-    url(r'^persons', person_list)
+    url(r'^persons$', person_list),
+    url(r'^persons/(?P<person_id>[0-9]+)', person_detail)
 ]

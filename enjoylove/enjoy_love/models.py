@@ -67,8 +67,11 @@ class Profile(models.Model):
     CHILDREN_CAR_HOUSE_CHOICES = ((0, '未透露'), (1, '无'), (2, '有'))
     EXPECT_MARRY_TIME = ((0, '未透露'), (1, '半年内'), (2, '一年内'))
     CAREER_CHOICES = ((0, "未透露"), (1, "在校学生"), (2, "私营业主"), (3, "农业劳动者"), (4, "企业职工"), (5, "政府机关/事业单位"), (6, "自由职业"))
+    CONSTELLATIONS = ((0, "未透露"), (1, "白羊座"), (2, "金牛座"), (3, "双子座"), (4, "巨蟹座"), (5, "狮子座"), (6, "处女座"), (7, "天秤座"),
+                      (8, "天蝎座"), (9, "射手座"), (10, "摩羯座"), (11, "水瓶座"), (12, "双鱼座"))
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    #person_id = models.AutoField()
     nickname = models.CharField('用户名', max_length=15, null=True, blank=True, unique=True)
     sex = models.SmallIntegerField('性别', choices=GENDER_CHOICES, default=0)
     person_intro = UEditorField("个人简介",null=True,)
@@ -96,6 +99,7 @@ class Profile(models.Model):
     has_house = models.SmallIntegerField("是否购房", choices=CHILDREN_CAR_HOUSE_CHOICES, default=0)
     relationship_desc = models.TextField("情感经历", null=True, blank=True)
     mate_preference = models.TextField("择偶标准", null=True, blank=True)
+    constellation = models.SmallIntegerField("星座", choices=CONSTELLATIONS, default=0)
     on_top = models.BooleanField("是否置顶", default=False)
     age = models.IntegerField("年龄", default=0)
     like = models.IntegerField("心动人数", default=0)

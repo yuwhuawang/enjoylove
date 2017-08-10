@@ -116,3 +116,20 @@ class PersonListSerializer(serializers.ModelSerializer):
         model = User
         fields = ("uid", "account", "identity_verified", "nickname", "work_area", "age", "height", "career", "income", "person_intro", "like", "type", "content")
 
+
+class PersonDetailSerializer(serializers.ModelSerializer):
+
+    person_id = serializers.IntegerField(source="id")
+    nickname = serializers.CharField(source="profile.nickname")
+    identity_verified = serializers.CharField(source="profile.identity_verified")
+    age = serializers.IntegerField(source="profile.age")
+    height = serializers.IntegerField(source="profile.height")
+    career = serializers.CharField(source="profile.get_career_display")
+    #age = serializers.CharField(source="")
+    #age = serializers.CharField(source="")
+    #age = serializers.CharField(source="")
+    #age = serializers.CharField(source="")
+
+    class Meta:
+        model = User
+        fields = ("person_id", "nickname", "identity_verified", "age", "height", "career")

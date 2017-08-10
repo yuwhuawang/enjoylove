@@ -31,7 +31,7 @@ from serializers import (UserSerializer, GlobalSerializer,
                          PersonalTagSerializer, UserTagSerializer,
                          AlbumSerializer, PersonalInterestSerializer,
                          UserContactSerializer, FilterControlSerializer,
-                         PersonListSerializer)
+                         PersonListSerializer, PersonDetailSerializer)
 
 import datetime
 from collections import OrderedDict, defaultdict
@@ -186,10 +186,11 @@ def verify_sms_code(request):
 @permission_classes((AllowAny,))
 def forgot_password(request):
     mobile = request.POST.get("mobile")
+    client_sms_code = request.GET.get("verify_code")
     password = request.POST.get("password")
-    password2 = request.POST.get("password2")
-    if password != password2:
-        return ApiResult(code=1, msg="两次密码不一致")
+    server_sms_code = cache.cache.get(mobile)
+    if client_sms_code != server_sms_code:
+        return BusinessError("验证失败")
     user = User.objects.get(mobile=mobile)
     if not user:
         return ApiResult(code=1, msg="您的手机尚未注册")
@@ -545,6 +546,17 @@ def person_list(request):
 
     return ApiResult(result={"total": total_size,
                               "person_list": person_list})
+
+
+@api_view(["GET"])
+def person_detail(request, person_id):
+    try:
+        person = User.objects.get(pk=person_id)
+        person_serializer = PersonDetailSerializer(person)
+    except:
+        return BusinessError("无此人物")
+    return ApiResult(person_serializer.data)
+
 
 
 
