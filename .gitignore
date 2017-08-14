@@ -108,3 +108,4 @@ enjoylove/db.sqlite3
 .idea/
 enjoylove/.idea/
 /enjoylove/enjoy_love/migrations/
+/enjoylove/logs/

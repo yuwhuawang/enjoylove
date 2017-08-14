@@ -11,6 +11,7 @@ from models import (User, Profile, GlobalSettings,
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Profile
         exclude = ('id', "user")
@@ -21,6 +22,8 @@ class AlbumSerializer(serializers.ModelSerializer):
         model = Album
         fields = ("id", "photo_url")
         #fields = "__all__"
+
+
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -119,17 +122,48 @@ class PersonListSerializer(serializers.ModelSerializer):
 
 class PersonDetailSerializer(serializers.ModelSerializer):
 
+    def get_albums(self):
+        user = self.context['request'].user
+        albums = Album.objects.filter(user=user, deleted=False)
+        serializer = AlbumSerializer(instance=albums, many=True)
+        return serializer.data
+
     person_id = serializers.IntegerField(source="id")
     nickname = serializers.CharField(source="profile.nickname")
+    work_area_name = serializers.CharField(source="profile.work_area_name")
     identity_verified = serializers.CharField(source="profile.identity_verified")
     age = serializers.IntegerField(source="profile.age")
     height = serializers.IntegerField(source="profile.height")
     career = serializers.CharField(source="profile.get_career_display")
-    #age = serializers.CharField(source="")
-    #age = serializers.CharField(source="")
-    #age = serializers.CharField(source="")
-    #age = serializers.CharField(source="")
+    income = serializers.CharField(source="profile.get_income_display")
+    expect_marry_date = serializers.CharField(source="profile.get_expect_marry_date_display")
+    nationality = serializers.CharField(source="profile.nationality")
+    marriage_status = serializers.CharField(source="profile.get_marriage_status_display")
+    birth_index = serializers.CharField(source="profile.birth_index")
+    has_children = serializers.CharField(source="profile.get_has_children_display")
+    weight = serializers.CharField(source="profile.weight")
+    avatar = serializers.CharField(source="profile.avatar")
+    vip = serializers.IntegerField(source="profile.vip.type")
+    has_car = serializers.CharField(source="profile.get_has_car_display")
+    has_house = serializers.CharField(source="profile.get_has_house_display")
+    relationship_desc = serializers.CharField(source="profile.relationship_desc")
+    mate_preference = serializers.CharField(source="profile.mate_preference")
+    constellation = serializers.CharField(source="profile.get_constellation_display")
+    like = serializers.IntegerField(source="profile.like")
+    #albums = Album.objects.fitler(deleted=False, )
 
     class Meta:
         model = User
-        fields = ("person_id", "nickname", "identity_verified", "age", "height", "career")
+        fields = ("person_id", "nickname", "identity_verified",
+                  "work_area_name", "age", "height", "career",
+                  "income", "expect_marry_date", "nationality",
+                  "marriage_status", "birth_index", "has_children",
+                  "weight", "avatar", "vip", "has_car", "has_house",
+                  "relationship_desc", "mate_preference", "constellation",
+                  "like", "albums")
+
+    def to_representation(self, obj):
+        data = super(PersonDetailSerializer, self).to_representation(obj)
+        data['albums'] = AlbumSerializer(
+            Album.objects.filter(deleted=False, user=obj), many=True).data
+        return data

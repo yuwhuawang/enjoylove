@@ -553,7 +553,8 @@ def person_detail(request, person_id):
     try:
         person = User.objects.get(pk=person_id)
         person_serializer = PersonDetailSerializer(person)
-    except:
+    except Exception as e:
+        logging.error(str(e))
         return BusinessError("无此人物")
     return ApiResult(person_serializer.data)
 

@@ -6,7 +6,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from tinymce.widgets import TinyMCE
 
 from django.contrib.auth.models import AbstractUser, BaseUserManager, UserManager
 import time
@@ -74,7 +73,7 @@ class Profile(models.Model):
     #person_id = models.AutoField()
     nickname = models.CharField('用户名', max_length=15, null=True, blank=True, unique=True)
     sex = models.SmallIntegerField('性别', choices=GENDER_CHOICES, default=0)
-    person_intro = UEditorField("个人简介",null=True,)
+    person_intro = UEditorField("个人简介",null=True, blank=True)
     #person_intro = models.TextField('个人简介',  max_length=1000, null=True, blank=True)
     birth_date = models.DateField('出生日期', null=True, blank=True)
     work_area_name = models.CharField("工作地名称", max_length=30, null=True, blank=True)
@@ -101,7 +100,7 @@ class Profile(models.Model):
     mate_preference = models.TextField("择偶标准", null=True, blank=True)
     constellation = models.SmallIntegerField("星座", choices=CONSTELLATIONS, default=0)
     on_top = models.BooleanField("是否置顶", default=False)
-    age = models.IntegerField("年龄", default=0)
+    age = models.IntegerField("年龄", default=0, blank=True)
     like = models.IntegerField("心动人数", default=0)
 
     def save(self, *args, **kwargs):
@@ -120,7 +119,10 @@ class Profile(models.Model):
 
         if self.birth_date:
             current_year = int(time.strftime('%Y', time.localtime(time.time())))
-            born_year = int(datetime.datetime.strptime(self.birth_date, "%Y-%m-%d").year)
+            if isinstance(self.birth_date, datetime.date):
+                born_year = self.birth_date.year
+            else:
+                born_year = int(datetime.datetime.strptime(self.birth_date, "%Y-%m-%d").year)
             self.age = current_year - born_year
 
         super(Profile, self).save(*args, **kwargs)
