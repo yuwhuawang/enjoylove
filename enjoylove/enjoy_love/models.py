@@ -249,7 +249,7 @@ class UserTags(models.Model):
         verbose_name_plural = "用户标签"
         unique_together = ("user", "tag")
     user = models.ForeignKey(User, verbose_name="标签", on_delete=models.CASCADE, related_name="tags", related_query_name="tags")
-    tag = models.ForeignKey(PersonalTag)
+    tag = models.ForeignKey(PersonalTag, related_name="tags", related_query_name="tags")
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
 
@@ -369,11 +369,15 @@ class LikeRecord(models.Model):
     class Meta:
         verbose_name = "心动记录"
         verbose_name_plural = "心动记录"
-
+        unique_together = ("like_from", "like_to")
     like_from = models.ForeignKey(User, on_delete=models.CASCADE, related_name="likerecord", related_query_name="likerecord")
     like_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name="liketorecord", related_query_name="liketorecord")
-    valid = models.BooleanField("是否有效", default=True)
+    #valid = models.BooleanField("是否有效", default=True)
     create_time = models.DateTimeField(auto_now_add=True)
+
+
+
+
 
 
 def create_user_profile(sender, instance, created, **kwargs):

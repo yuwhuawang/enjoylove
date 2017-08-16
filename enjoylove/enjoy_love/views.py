@@ -20,7 +20,7 @@ from enjoy_love.models import (User, Profile, IdentityVerify,
                                GlobalSettings, PersonalTag,
                                UserTags, Album, PersonalInterest,
                                UserInterest, UserContact, FilterControl,
-                               Advertisement)
+                               Advertisement, LikeRecord)
 from django.contrib.auth.hashers import make_password
 from rest_framework_jwt.settings import api_settings
 
@@ -31,7 +31,7 @@ from serializers import (UserSerializer, GlobalSerializer,
                          PersonalTagSerializer, UserTagSerializer,
                          AlbumSerializer, PersonalInterestSerializer,
                          UserContactSerializer, FilterControlSerializer,
-                         PersonListSerializer, PersonDetailSerializer)
+                         PersonListSerializer, PersonDetailSerializer, UserInterestSerializer)
 
 import datetime
 from collections import OrderedDict, defaultdict
@@ -349,6 +349,34 @@ def set_user_tags(request):
     return ApiResult()
 
 
+@api_view((['GET']))
+def get_user_interests(request):
+    uid = request.GET.get("uid")
+    user_interests = UserInterest.objects.filter(user_id=uid)
+    user_interests_data = UserInterestSerializer(user_interests, many=True).data
+    return ApiResult(result=user_interests_data)
+
+
+@api_view(['POST'])
+@transaction.atomic
+def set_user_interests(request):
+    uid = request.POST.get("uid")
+    interest_ids = request.POST.get("interest_ids")
+
+    UserInterest.objects.filter(user_id=uid).delete()
+
+    if interest_ids:
+        interest_ids_list = interest_ids.split(',')
+        if len(interest_ids_list) > 8:
+            return ApiResult(code=1, msg="最多可以选择八个")
+
+        for interest_id in interest_ids_list:
+            try:
+                UserTags(user_id=uid, interest_id=interest_id).save()
+            except django.db.IntegrityError as e:
+                logging.error(str(e))
+
+
 @api_view(['GET'])
 def user_album(request):
     uid = request.GET.get("uid")
@@ -545,18 +573,53 @@ def person_list(request):
         person_list.insert(ad_position, ad_result)
 
     return ApiResult(result={"total": total_size,
-                              "person_list": person_list})
+                             "person_list": person_list})
 
 
 @api_view(["GET"])
+@permission_classes((AllowAny,))
 def person_detail(request, person_id):
+    liked = False
     try:
         person = User.objects.get(pk=person_id)
-        person_serializer = PersonDetailSerializer(person)
+        person_detail = PersonDetailSerializer(person).data
     except Exception as e:
         logging.error(str(e))
         return BusinessError("无此人物")
-    return ApiResult(person_serializer.data)
+    uid = request.GET.get("uid")
+    if uid:
+        like_record = LikeRecord.objects.filter(like_from__id=uid, like_to__id=person_id)
+        if like_record:
+            liked = True
+
+    person_detail['liked'] = liked
+
+    return ApiResult(result=person_detail)
+
+
+@api_view(["POST"])
+def set_like(request, person_id):
+    uid = request.POST.get("uid")
+    like_record = LikeRecord.objects.filter(like_from__id=uid, like_to__id=person_id)
+    if like_record:
+        return BusinessError("已经喜欢过")
+    new_like = LikeRecord()
+    new_like.like_from__id = uid
+    new_like.like_to__id = person_id
+    new_like.save()
+    return ApiResult()
+
+
+@api_view(["POST"])
+@transaction.atomic
+def set_unlike(request, person_id):
+    uid = request.POST.get("uid")
+    like_record = LikeRecord.objects.filter(like_from__id=uid, like_to__id=person_id)
+    if not like_record:
+        return BusinessError("未喜欢过")
+    like_record.delete()
+    return ApiResult()
+
 
 
 

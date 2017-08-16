@@ -5,13 +5,13 @@ __created__ = '2017/08/06 14:14'
 from rest_framework import serializers
 from models import (User, Profile, GlobalSettings,
                     PersonalTag, UserTags, Album,
-                    PersonalInterest, UserContact,
+                    PersonalInterest, UserInterest,
+                    UserContact,
                     ContactType, FilterControl,
                     FilterOptions)
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Profile
         exclude = ('id', "user")
@@ -22,8 +22,6 @@ class AlbumSerializer(serializers.ModelSerializer):
         model = Album
         fields = ("id", "photo_url")
         #fields = "__all__"
-
-
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -51,11 +49,13 @@ class PersonalTagSerializer(serializers.ModelSerializer):
 
 
 class UserTagSerializer(serializers.ModelSerializer):
-    tag = PersonalTagSerializer()
+
+    tag_id = serializers.IntegerField(source="tag.id")
+    tag_name = serializers.CharField(source="tag.name")
 
     class Meta:
         model = UserTags
-        fields = ("tag", )
+        fields = ("tag_id", "tag_name")
         #fields = "__all__"
 
 
@@ -63,6 +63,15 @@ class PersonalInterestSerializer(serializers.ModelSerializer):
     class Meta:
         model = PersonalInterest
         fields = ("id", "name", )
+
+
+class UserInterestSerializer(serializers.ModelSerializer):
+
+    interest_id = serializers.IntegerField(source="interest.id")
+    interest_name = serializers.CharField(source="interest.name")
+    class Meta:
+        model = UserInterest
+        fields = ("interest_id", "interest_name")
 
 
 class PersonalContactSerializer(serializers.ModelSerializer):
@@ -131,6 +140,8 @@ class PersonDetailSerializer(serializers.ModelSerializer):
     person_id = serializers.IntegerField(source="id")
     nickname = serializers.CharField(source="profile.nickname")
     work_area_name = serializers.CharField(source="profile.work_area_name")
+    born_area_name = serializers.CharField(source="profile.born_area_name")
+    birth_date = serializers.DateField(source="profile.birth_date")
     identity_verified = serializers.CharField(source="profile.identity_verified")
     age = serializers.IntegerField(source="profile.age")
     height = serializers.IntegerField(source="profile.height")
@@ -150,6 +161,9 @@ class PersonDetailSerializer(serializers.ModelSerializer):
     mate_preference = serializers.CharField(source="profile.mate_preference")
     constellation = serializers.CharField(source="profile.get_constellation_display")
     like = serializers.IntegerField(source="profile.like")
+
+    #tags = UserTagSerializer()
+
     #albums = Album.objects.fitler(deleted=False, )
 
     class Meta:
@@ -160,10 +174,19 @@ class PersonDetailSerializer(serializers.ModelSerializer):
                   "marriage_status", "birth_index", "has_children",
                   "weight", "avatar", "vip", "has_car", "has_house",
                   "relationship_desc", "mate_preference", "constellation",
-                  "like", "albums")
+                  "like", "albums", "born_area_name", "birth_date", "tags")
 
     def to_representation(self, obj):
         data = super(PersonDetailSerializer, self).to_representation(obj)
+
+        data['tags'] = UserTagSerializer(
+            UserTags.objects.filter(user=obj), many=True
+        ).data
+
+        data['interests'] = UserInterestSerializer(
+            UserInterest.objects.filter(user=obj), many=True
+        ).data
+
         data['albums'] = AlbumSerializer(
             Album.objects.filter(deleted=False, user=obj), many=True).data
         return data
