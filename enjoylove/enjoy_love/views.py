@@ -20,7 +20,8 @@ from enjoy_love.models import (User, Profile, IdentityVerify,
                                GlobalSettings, PersonalTag,
                                UserTags, Album, PersonalInterest,
                                UserInterest, UserContact, FilterControl,
-                               Advertisement, LikeRecord, UserMessage)
+                               Advertisement, LikeRecord, UserMessage,
+                               ContactExchange)
 from django.contrib.auth.hashers import make_password
 from rest_framework_jwt.settings import api_settings
 
@@ -31,11 +32,13 @@ from serializers import (UserSerializer, GlobalSerializer,
                          PersonalTagSerializer, UserTagSerializer,
                          AlbumSerializer, PersonalInterestSerializer,
                          UserContactSerializer, FilterControlSerializer,
-                         PersonListSerializer, PersonDetailSerializer, UserInterestSerializer)
+                         PersonListSerializer, PersonDetailSerializer,
+                         UserInterestSerializer, UserMessageSerializer)
 
 import datetime
 from collections import OrderedDict, defaultdict
 
+from django.db.models import Q
 
 
 
@@ -580,6 +583,8 @@ def person_list(request):
 @permission_classes((AllowAny,))
 def person_detail(request, person_id):
     liked = False
+    can_leave_message = False
+    qq_status = 0
     try:
         person = User.objects.get(pk=person_id)
         person_detail = PersonDetailSerializer(person).data
@@ -591,8 +596,18 @@ def person_detail(request, person_id):
         like_record = LikeRecord.objects.filter(like_from__id=uid, like_to__id=person_id)
         if like_record:
             liked = True
+        can_leave_message = True
+
+    qq_exchange = ContactExchange.objects.filter(Q(exchange_type_name="QQ"),
+                                                 Q(exchange_sender_id=uid)& Q(exchage_receiver_id=person_id) |
+                                                 Q(exchange_sender_id=person_id) & Q(exchage_receiver_id=uid)
+                                                 )
+
+    if qq_exchange:
+        pass
 
     person_detail['liked'] = liked
+    person_detail['can_leave_message'] = can_leave_message
 
     return ApiResult(result=person_detail)
 
@@ -600,12 +615,13 @@ def person_detail(request, person_id):
 @api_view(["POST"])
 def set_like(request, person_id):
     uid = request.POST.get("uid")
-    like_record = LikeRecord.objects.filter(like_from__id=uid, like_to__id=person_id)
+    like_record = LikeRecord.objects.filter(like_from__id=uid,
+                                            like_to__id=person_id)
     if like_record:
         return BusinessError("已经喜欢过")
     new_like = LikeRecord()
-    new_like.like_from__id = uid
-    new_like.like_to__id = person_id
+    new_like.like_from_id = uid
+    new_like.like_to_id = person_id
     new_like.save()
     return ApiResult()
 
@@ -623,6 +639,7 @@ def set_unlike(request, person_id):
 
 @api_view(['POST'])
 def leave_message(request, person_id):
+
     uid = request.POST.get("uid")
     message = request.POST.get("message")
     key = "{}_{}".format(uid, person_id)
@@ -630,10 +647,30 @@ def leave_message(request, person_id):
     if cache.cache.get(key):
         return BusinessError("您的发言次数过快")
     message_record = UserMessage()
-    message_record.message_from__id = uid
-    message_record.message_to__id = person_id
+    message_record.message_from_id = uid
+    message_record.message_to_id = person_id
     message_record.content = message
     message_record.save()
+    cache.cache.set(key, 1, 5)
+
+    return ApiResult("留言成功")
+
+
+@api_view(['GET'])
+def messages_sent(request):
+    uid = request.GET.get("uid")
+    out_message_records = UserMessage.objects.filter(message_from_id=uid, deleted=False)
+    out_message_records = UserMessageSerializer(out_message_records, many=True).data
+    return ApiResult(result=out_message_records)
+
+
+@api_view(['GET'])
+def messages_received(request):
+    uid = request.GET.get("uid")
+    received_message_records = UserMessage.objects.filter(message_to_id=uid, deleted=False)
+    received_message_records = UserMessageSerializer(received_message_records, many=True).data
+    return ApiResult(result=received_message_records)
+
 
 
 

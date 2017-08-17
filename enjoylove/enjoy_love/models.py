@@ -383,8 +383,8 @@ class UserMessage(models.Model):
         verbose_name = "留言"
         verbose_name_plural = "留言"
 
-    message_from = models.ForeignKey(User, on_delete=models.CASCADE, related_name="messages", related_query_name="messages")
-    message_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name="messages", related_query_name="messages")
+    message_from = models.ForeignKey(User, on_delete=models.CASCADE, related_name="messages_from", related_query_name="messages_from")
+    message_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name="messages_to", related_query_name="messages_to")
     content = models.TextField("留言内容")
     deleted = models.BooleanField("是否删除", default=False)
     create_time = models.DateTimeField(auto_now_add=True)
@@ -399,6 +399,26 @@ class UserMessage(models.Model):
 
         self.content = keyword_filter.filter(self.content)
         super(UserMessage, self).save(*args, **kwargs)
+
+
+class ContactExchange(models.Model):
+    EXCHANGE_STATUS = ((0, "待处理"), (1, "同意"), (2, "拒绝"))
+
+    class Meta:
+        verbose_name = "联系方式交换记录"
+        verbose_name_plural = "联系方式交换记录"
+        unique_together = ("exchange_sender", "exchange_receiver", "exchange_type" )
+    exchange_sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="exchange_sender", related_query_name ="exchange_sender")
+    exchange_receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="exchange_receiver", related_query_name ="exchange_receiver")
+    exchange_type = models.ForeignKey(ContactType, on_delete=models.CASCADE, related_name="exchange_type", related_query_name ="exchange_type")
+    exchange_status = models.SmallIntegerField("状态", choices=EXCHANGE_STATUS, default=0)
+
+    def __str__(self):
+        return self.exchange_type.name
+
+    def __unicode__(self):
+        return self.exchange_type.name
+
 
 
 def create_user_profile(sender, instance, created, **kwargs):

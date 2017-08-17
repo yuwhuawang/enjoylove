@@ -8,7 +8,7 @@ from models import (User, Profile, GlobalSettings,
                     PersonalInterest, UserInterest,
                     UserContact,
                     ContactType, FilterControl,
-                    FilterOptions)
+                    FilterOptions, UserMessage)
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -189,4 +189,19 @@ class PersonDetailSerializer(serializers.ModelSerializer):
 
         data['albums'] = AlbumSerializer(
             Album.objects.filter(deleted=False, user=obj), many=True).data
+
+        data['messages'] = UserMessageSerializer(
+            UserMessage.objects.filter(message_to=obj, deleted=False)[0:5], many=True
+        ).data
         return data
+
+
+class UserMessageSerializer(serializers.ModelSerializer):
+    sender_id = serializers.IntegerField(source="message_from.id")
+    sender_avatar = serializers.CharField(source="message_from.profile.avatar")
+    receiver_id = serializers.IntegerField(source="message_to.id")
+    receiver_avatar = serializers.CharField(source="message_to.profile.avatar")
+
+    class Meta:
+        model = UserMessage
+        fields = ("id", "sender_id", "sender_avatar", "receiver_id", "receiver_avatar", "content", "create_time",)

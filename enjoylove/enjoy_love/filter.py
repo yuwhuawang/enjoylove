@@ -2,7 +2,8 @@
 # -*- coding:utf-8 -*-
 from collections import defaultdict
 import re
-
+import os
+from django.conf import settings
 __all__ = ['NaiveFilter', 'BSFilter', 'DFAFilter']
 __author__ = 'observer'
 __date__ = '2012.01.05'
@@ -175,4 +176,5 @@ if __name__ == "__main__":
     test_first_character()
 
 keyword_filter = DFAFilter()
-keyword_filter.parse("keywords")
+path = os.path.join(settings.BASE_DIR, "enjoy_love", "keywords")
+keyword_filter.parse(path)
