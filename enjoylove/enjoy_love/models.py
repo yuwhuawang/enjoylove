@@ -13,6 +13,8 @@ import datetime
 from django.db.models.functions import ExtractYear
 from DjangoUeditor.models import UEditorField
 
+from filter import keyword_filter
+
 # Create your models here.
 
 
@@ -376,8 +378,27 @@ class LikeRecord(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
 
 
+class UserMessage(models.Model):
+    class Meta:
+        verbose_name = "留言"
+        verbose_name_plural = "留言"
 
+    message_from = models.ForeignKey(User, on_delete=models.CASCADE, related_name="messages", related_query_name="messages")
+    message_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name="messages", related_query_name="messages")
+    content = models.TextField("留言内容")
+    deleted = models.BooleanField("是否删除", default=False)
+    create_time = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.content[0:10]
+
+    def __unicode__(self):
+        return self.content[0:10]
+
+    def save(self, *args, **kwargs):
+
+        self.content = keyword_filter.filter(self.content)
+        super(UserMessage, self).save(*args, **kwargs)
 
 
 def create_user_profile(sender, instance, created, **kwargs):

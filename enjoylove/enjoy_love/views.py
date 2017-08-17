@@ -20,7 +20,7 @@ from enjoy_love.models import (User, Profile, IdentityVerify,
                                GlobalSettings, PersonalTag,
                                UserTags, Album, PersonalInterest,
                                UserInterest, UserContact, FilterControl,
-                               Advertisement, LikeRecord)
+                               Advertisement, LikeRecord, UserMessage)
 from django.contrib.auth.hashers import make_password
 from rest_framework_jwt.settings import api_settings
 
@@ -619,6 +619,21 @@ def set_unlike(request, person_id):
         return BusinessError("未喜欢过")
     like_record.delete()
     return ApiResult()
+
+
+@api_view(['POST'])
+def leave_message(request, person_id):
+    uid = request.POST.get("uid")
+    message = request.POST.get("message")
+    key = "{}_{}".format(uid, person_id)
+
+    if cache.cache.get(key):
+        return BusinessError("您的发言次数过快")
+    message_record = UserMessage()
+    message_record.message_from__id = uid
+    message_record.message_to__id = person_id
+    message_record.content = message
+    message_record.save()
 
 
 

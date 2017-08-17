@@ -5,7 +5,7 @@ from views import (user_login, user_register, verify_sms_code, gen_sms_code,
                    test, upload_avatar, set_gender, verify_identity, set_basic_info,
                    get_user_tags, set_user_tags, user_init, user_album, set_album,
                    delete_album, user_contact, set_contact, person_list, person_detail, get_user_interests,
-                   set_user_interests, set_like, set_unlike)
+                   set_user_interests, set_like, set_unlike, leave_message)
 urlpatterns = [
     url(r'^init', user_init),
     url(r'^login', user_login),
@@ -33,4 +33,5 @@ urlpatterns = [
     url(r'^persons/(?P<person_id>[0-9]+)', person_detail),
     url(r'^like/(?P<person_id>[0-9]+)', set_like),
     url(r'^unlike/(?P<person_id>[0-9]+)', set_unlike),
+    url(r'^leave/message/(?P<person_id>[0-9]+)', leave_message)
 ]
