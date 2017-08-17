@@ -420,7 +420,6 @@ class ContactExchange(models.Model):
         return self.exchange_type.name
 
 
-
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         profile = Profile()

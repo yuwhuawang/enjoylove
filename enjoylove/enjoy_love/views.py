@@ -584,7 +584,10 @@ def person_list(request):
 def person_detail(request, person_id):
     liked = False
     can_leave_message = False
-    qq_status = 0
+    contact_result = []
+    qq_result = {"type_id": 1, "type_name": "QQ", "status": 0, "content": None}
+    wechat_result = {"type_id": 2, "type_name": "微信", "status": 0, "content": None}
+
     try:
         person = User.objects.get(pk=person_id)
         person_detail = PersonDetailSerializer(person).data
@@ -598,16 +601,36 @@ def person_detail(request, person_id):
             liked = True
         can_leave_message = True
 
-    qq_exchange = ContactExchange.objects.filter(Q(exchange_type_name="QQ"),
-                                                 Q(exchange_sender_id=uid)& Q(exchage_receiver_id=person_id) |
-                                                 Q(exchange_sender_id=person_id) & Q(exchage_receiver_id=uid)
+    qq_exchange = ContactExchange.objects.filter(Q(exchange_type__name="QQ"),
+                                                 Q(exchange_sender_id=uid) & Q(exchange_receiver_id=person_id) |
+                                                 Q(exchange_sender_id=person_id) & Q(exchange_receiver_id=uid)
+                                                 )
+
+    wechat_exchange = ContactExchange.objects.filter(Q(exchange_type__name="微信"),
+                                                 Q(exchange_sender_id=uid) & Q(exchange_receiver_id=person_id) |
+                                                 Q(exchange_sender_id=person_id) & Q(exchange_receiver_id=uid)
                                                  )
 
     if qq_exchange:
-        pass
+        if qq_exchange.status == 1:
+            qq_contact = UserContact.objects.filter(user_id=person_id, type__name="QQ", deleted=False)
+            qq_result['status'] = 1
+            if qq_contact:
+                qq_result['content'] = qq_contact[0].content
+
+        elif qq_exchange.status == 2:
+            qq_result['status'] = 2
+
+    if wechat_exchange:
+        if wechat_exchange.status == 1:
+            wechat_contact = UserContact.objects.filter(user_id=person_id, type__name="微信", deleted=False)
+            wechat_result['status'] = 1
+            if wechat_contact:
+                wechat_result['content'] = wechat_contact[0].content
 
     person_detail['liked'] = liked
     person_detail['can_leave_message'] = can_leave_message
+    person_detail['contact_result'] = [qq_result, wechat_result]
 
     return ApiResult(result=person_detail)
 
@@ -672,7 +695,48 @@ def messages_received(request):
     return ApiResult(result=received_message_records)
 
 
+@api_view(['POST'])
+def ask_contact(request, person_id):
+    uid = request.POST.get("uid")
+    contact_type = request.POST.get("contact_type")
 
+    contact_request = ContactExchange()
+    contact_request.exchange_sender_id = uid
+    contact_request.exchange_receiver_id = person_id
+    contact_request.exchange_type_id = contact_type
+    contact_request.save()
+
+    return ApiResult()
+
+
+@api_view(['POST'])
+def accept_contact(request, person_id):
+    uid = request.POSt.get("uid")
+    contact_type = request.POST.get("contact_type")
+    exchange_contacts = ContactExchange.objects.filter(exchange_sender_id=person_id, exchange_receiver_id=uid, exchange_type_id=contact_type, exchange_status=0)
+
+    user_contact = UserContact.objects.filter(user_id=uid, type_id=contact_type, deleted=False)
+    if not user_contact:
+        return BusinessError("请先设置联系方式")
+
+    exchange_contacts.exchange_status = 1
+    exchange_contacts.save()
+    return ApiResult()
+
+
+@api_view(['POST'])
+def deny_contact(request, person_id):
+    uid = request.POSt.get("uid")
+    contact_type = request.POST.get("contact_type")
+    exchange_contacts = ContactExchange.objects.filter(exchange_sender_id=person_id, exchange_receiver_id=uid, exchange_type_id=contact_type, exchange_status=0)
+
+    #user_contact = UserContact.objects.filter(user_id=uid, type_id=contact_type, deleted=False)
+    #if not user_contact:
+        #return BusinessError("请先设置联系方式")
+
+    exchange_contacts.exchange_status = 2
+    exchange_contacts.save()
+    return ApiResult()
 
 
 
