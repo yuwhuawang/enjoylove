@@ -107,3 +107,6 @@ pip-selfcheck.json
 enjoylove/db.sqlite3
 .idea/
 enjoylove/.idea/
+/enjoylove/enjoy_love/migrations/
+/enjoylove/logs/
+/enjoylove/collected_static/

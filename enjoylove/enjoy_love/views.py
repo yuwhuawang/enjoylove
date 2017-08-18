@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import django.core.cache
 import django.db
+import django.db.models
 import django.db.transaction
 import django.http
 import logging
@@ -12,14 +12,17 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from enjoy_love.util import create_verify_code
 from enjoy_love.api_result import ApiResult, BusinessError
-from django.core.cache import cache
+#from django.core.cache import cache
 from django.db import transaction
-
+from django.core import cache
+from django.core.paginator import Paginator, EmptyPage
 # Create your views here.
 from enjoy_love.models import (User, Profile, IdentityVerify,
                                GlobalSettings, PersonalTag,
                                UserTags, Album, PersonalInterest,
-                               UserInterest, UserContact, FilterControl)
+                               UserInterest, UserContact, FilterControl,
+                               Advertisement, LikeRecord, UserMessage,
+                               ContactExchange)
 from django.contrib.auth.hashers import make_password
 from rest_framework_jwt.settings import api_settings
 
@@ -29,7 +32,17 @@ from django.conf import settings
 from serializers import (UserSerializer, GlobalSerializer,
                          PersonalTagSerializer, UserTagSerializer,
                          AlbumSerializer, PersonalInterestSerializer,
-                         UserContactSerializer, FilterControlSerializer)
+                         UserContactSerializer, FilterControlSerializer,
+                         PersonListSerializer, PersonDetailSerializer,
+                         UserInterestSerializer, UserMessageSerializer)
+
+import datetime
+from collections import OrderedDict, defaultdict
+
+from django.db.models import Q
+from django.core.exceptions import ObjectDoesNotExist
+
+
 
 
 def test(request):
@@ -144,9 +157,9 @@ def user_login(request):
 @permission_classes((AllowAny,))
 def gen_sms_code(request):
     mobile = request.GET.get("mobile")
-    exist_code = cache.get(mobile)
+    exist_code = cache.cache.get(mobile)
     sms_code = exist_code if exist_code else create_verify_code()
-    cache.set(mobile, sms_code, 60)
+    cache.cache.set(mobile, sms_code, 60)
     send_result = SMSSender().templateSMS(accountSid=settings.SMS_ACCOUNTSID,
                                           accountToken=settings.SMS_AUTHTOKEN,
                                           appId=settings.SMS_APPID,
@@ -168,16 +181,37 @@ def gen_sms_code(request):
 def verify_sms_code(request):
     client_sms_code = request.GET.get("verify_code")
     mobile = request.GET.get("mobile")
-    server_sms_code = cache.get(mobile)
+    server_sms_code = cache.cache.get(mobile)
     if client_sms_code == server_sms_code:
         return ApiResult(code=0, msg="验证成功")
     return ApiResult(code=1, msg="验证失败")
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 @permission_classes((AllowAny,))
+def forgot_password(request):
+    mobile = request.POST.get("mobile")
+    client_sms_code = request.GET.get("verify_code")
+    password = request.POST.get("password")
+    server_sms_code = cache.cache.get(mobile)
+    if client_sms_code != server_sms_code:
+        return BusinessError("验证失败")
+    user = User.objects.get(mobile=mobile)
+    if not user:
+        return ApiResult(code=1, msg="您的手机尚未注册")
+    user.password = make_password(password)
+    user.save()
+    return ApiResult(code=0, msg="重置密码成功")
+
+
+@api_view(['POST'])
 def reset_password(request):
     mobile = request.POST.get("mobile")
+    old_password = request.POST.get("old_pwd")
+    user = auth.authenticate(username=mobile, password=old_password)
+    if not user:
+        return BusinessError("用户名或密码不正确")
+
     password = request.POST.get("password")
     password2 = request.POST.get("password2")
     if password != password2:
@@ -233,6 +267,7 @@ def verify_identity(request):
 def set_basic_info(request):
     uid = request.POST.get("uid")
     nickname = request.POST.get("nickname")
+    birth_date = request.POST.get("birth_date")
     work_area_name = request.POST.get("work_area_name")
     work_area_code = request.POST.get("work_area_code")
     born_area_name = request.POST.get("born_area_name")
@@ -279,7 +314,7 @@ def set_basic_info(request):
     user.profile.has_car = has_car if has_car else user.profile.has_car
     user.profile.has_house = has_house if has_house else user.profile.has_house
     user.profile.person_intro = person_intro if person_intro else user.profile.person_intro
-
+    user.profile.birth_date = birth_date if birth_date else user.profile.birth_date
 
     user.profile.save()
 
@@ -317,6 +352,34 @@ def set_user_tags(request):
                 logging.error(str(e))
 
     return ApiResult()
+
+
+@api_view((['GET']))
+def get_user_interests(request):
+    uid = request.GET.get("uid")
+    user_interests = UserInterest.objects.filter(user_id=uid)
+    user_interests_data = UserInterestSerializer(user_interests, many=True).data
+    return ApiResult(result=user_interests_data)
+
+
+@api_view(['POST'])
+@transaction.atomic
+def set_user_interests(request):
+    uid = request.POST.get("uid")
+    interest_ids = request.POST.get("interest_ids")
+
+    UserInterest.objects.filter(user_id=uid).delete()
+
+    if interest_ids:
+        interest_ids_list = interest_ids.split(',')
+        if len(interest_ids_list) > 8:
+            return ApiResult(code=1, msg="最多可以选择八个")
+
+        for interest_id in interest_ids_list:
+            try:
+                UserTags(user_id=uid, interest_id=interest_id).save()
+            except django.db.IntegrityError as e:
+                logging.error(str(e))
 
 
 @api_view(['GET'])
@@ -401,15 +464,325 @@ def delete_contact(request):
 
 
 @api_view(["GET"])
+@permission_classes((AllowAny, ))
 def person_list(request):
     uid = request.GET.get("uid")
+
+    offset = request.GET.get("offset", 0)
+    limit = request.GET.get("limit", 10)
+
+    is_student = request.GET.get("is_student")
     sex = request.GET.get("sex")
     min_age = request.GET.get("min_age")
+    max_age = request.GET.get("max_age")
+    work_area_code = request.GET.get("work_area_code")
+    born_area_code = request.GET.get("born_area_code")
+    min_height = request.GET.get("min_height")
+    max_height = request.GET.get("max_height")
+    education = request.GET.get("education")
+    career = request.GET.get("career")
+    income = request.GET.get("income")
+    expect_marry_date = request.GET.get("expect_marry_date")
+    nationality = request.GET.get("nationality")
+    marriage_status = request.GET.get("marriage_status")
+    birth_index = request.GET.get("birth_index")
+    min_weight = request.GET.get("min_weight")
+    max_weight = request.GET.get("max_weight")
+    has_car = request.GET.get("has_car")
+    has_children = request.GET.get("has_children")
+    has_house = request.GET.get("has_house")
+
     query_params = dict()
+    #query_params['id'] = uid
+
     if sex:
-        query_params['sex'] = sex
+        query_params['profile__sex'] = sex
     if min_age:
-        query_params['age_']
+        query_params['profile__age__gte'] = min_age
+    if max_age:
+        query_params['profile__age__lte'] = max_age
+    if work_area_code:
+        query_params['profile__work_area_code'] = work_area_code
+    if born_area_code:
+        query_params['profile__born_area_code'] = born_area_code
+
+    if min_height:
+        query_params['profile__min_height__gte'] = min_height
+    if max_height:
+        query_params['profile__max_height__lte'] = max_height
+    if education:
+        query_params['profile__education'] = education
+    if career:
+        query_params['profile__career'] = career
+    if income:
+        query_params['profile__income'] = income
+    if expect_marry_date:
+        query_params['profile__expect_marry_date'] = expect_marry_date
+    if nationality:
+        query_params['profile__nationality'] = nationality
+    if marriage_status:
+        query_params['profile__marriage_status'] = marriage_status
+    if birth_index:
+        query_params['profile__birth_index'] = birth_index
+    if min_weight:
+        query_params['profile__min_weight__gte'] = min_weight
+    if max_weight:
+        query_params['profile__max_weight__lte'] = max_weight
+    if has_car:
+        query_params['profile__has_car'] = has_car
+    if has_children:
+        query_params['profile__has_children'] = has_children
+    if has_house:
+        query_params['profile__has_house'] = has_house
+
+    if is_student is not None:
+        if is_student == 0:
+            query_params["profile__career"] = 0
+        if is_student == 1:
+            query_params["profile_career__in"] = [0, 2, 3, 4, 5, 6]
+
+    total_size = User.objects.filter(**query_params).count()
+
+    page = int(offset) + 1
+    limit = int(limit)
+
+    #tops = User.objects.filter(profile__on_top=True, **query_params)
+    user_list = User.objects.filter(**query_params).order_by("-profile__on_top", "?")
+
+    paginator = Paginator(user_list, limit)
+    try:
+        person_list = PersonListSerializer(paginator.page(page), many=True).data
+    except EmptyPage:
+        return BusinessError("没有更多数据")
+
+    advertisements = Advertisement.objects.filter(valid=True, expire_time__gt=datetime.datetime.now(),  show_place__in=[0, 1], show_page=page)
+
+    for ad in advertisements:
+        ad_result = OrderedDict()
+        ad_result["uid"] = 0
+        ad_result["account"] = ""
+        ad_result["identity_verified"] = ""
+        ad_result["nickname"] = ""
+        ad_result["work_area"] = ""
+        ad_result["age"] = ""
+        ad_result["height"] = 0
+        ad_result["career"] = 0
+        ad_result["income"] = 0
+        ad_result["person_intro"] = 0
+        ad_result["like"] = 0
+        ad_result["type"] = 2
+        ad_result["content"] = {
+            "name": ad.name,
+            "img": ad.img,
+            "desc": ad.desc,
+            "url": ad.url
+        }
+        ad_position = ad.show_position if ad.show_position <= limit else limit
+        person_list.insert(ad_position, ad_result)
+
+    return ApiResult(result={"total": total_size,
+                             "person_list": person_list})
+
+
+@api_view(["GET"])
+@permission_classes((AllowAny,))
+def person_detail(request, person_id):
+    liked = False
+    can_leave_message = False
+    contact_result = []
+    qq_result = {"type_id": 1, "type_name": "QQ", "status": 0, "content": None}
+    wechat_result = {"type_id": 2, "type_name": "微信", "status": 0, "content": None}
+
+    try:
+        person = User.objects.get(pk=person_id)
+        person_detail = PersonDetailSerializer(person).data
+    except Exception as e:
+        logging.error(str(e))
+        return BusinessError("无此人物")
+    uid = request.GET.get("uid")
+    if uid:
+        like_record = LikeRecord.objects.filter(like_from__id=uid, like_to__id=person_id)
+        if like_record:
+            liked = True
+        can_leave_message = True
+
+    qq_exchange = ContactExchange.objects.filter(Q(exchange_type__name="QQ"),
+                                                 Q(exchange_sender_id=uid) & Q(exchange_receiver_id=person_id) |
+                                                 Q(exchange_sender_id=person_id) & Q(exchange_receiver_id=uid)
+                                                 )
+
+    wechat_exchange = ContactExchange.objects.filter(Q(exchange_type__name="微信"),
+                                                 Q(exchange_sender_id=uid) & Q(exchange_receiver_id=person_id) |
+                                                 Q(exchange_sender_id=person_id) & Q(exchange_receiver_id=uid)
+                                                 )
+
+    if qq_exchange:
+        if qq_exchange.status == 1:
+            qq_contact = UserContact.objects.filter(user_id=person_id, type__name="QQ", deleted=False)
+            qq_result['status'] = 1
+            if qq_contact:
+                qq_result['content'] = qq_contact[0].content
+
+        elif qq_exchange.status == 2:
+            qq_result['status'] = 2
+
+    if wechat_exchange:
+        if wechat_exchange.status == 1:
+            wechat_contact = UserContact.objects.filter(user_id=person_id, type__name="微信", deleted=False)
+            wechat_result['status'] = 1
+            if wechat_contact:
+                wechat_result['content'] = wechat_contact[0].content
+
+    person_detail['liked'] = liked
+    person_detail['can_leave_message'] = can_leave_message
+    person_detail['contact_result'] = [qq_result, wechat_result]
+
+    return ApiResult(result=person_detail)
+
+
+@api_view(["POST"])
+def set_like(request, person_id):
+    uid = request.POST.get("uid")
+    like_record = LikeRecord.objects.filter(like_from__id=uid,
+                                            like_to__id=person_id)
+    if like_record:
+        return BusinessError("已经喜欢过")
+    new_like = LikeRecord()
+    new_like.like_from_id = uid
+    new_like.like_to_id = person_id
+    new_like.save()
+    return ApiResult()
+
+
+@api_view(["POST"])
+@transaction.atomic
+def set_unlike(request, person_id):
+    uid = request.POST.get("uid")
+    like_record = LikeRecord.objects.filter(like_from__id=uid, like_to__id=person_id)
+    if not like_record:
+        return BusinessError("未喜欢过")
+    like_record.delete()
+    return ApiResult()
+
+
+@api_view(['POST'])
+def leave_message(request, person_id):
+
+    uid = request.POST.get("uid")
+    message = request.POST.get("message")
+    key = "{}_{}".format(uid, person_id)
+
+    if cache.cache.get(key):
+        return BusinessError("您的发言次数过快")
+    message_record = UserMessage()
+    message_record.message_from_id = uid
+    message_record.message_to_id = person_id
+    message_record.content = message
+    message_record.save()
+    cache.cache.set(key, 1, 5)
+
+    return ApiResult("留言成功")
+
+
+@api_view(['GET'])
+def messages_sent(request):
+    uid = request.GET.get("uid")
+    offset = request.GET.get("offset", 0)
+    limit = request.GET.get("limit", 10)
+    out_message_records = UserMessage.objects.filter(message_from_id=uid, deleted=False)
+    page = int(offset) + 1
+    limit = int(limit)
+    paginator = Paginator(out_message_records, limit)
+    try:
+        out_message_records = UserMessageSerializer(paginator.page(page), many=True).data
+    except EmptyPage:
+        return BusinessError("没有更多数据")
+
+    return ApiResult(result=out_message_records)
+
+
+@api_view(['GET'])
+def messages_received(request):
+    uid = request.GET.get("uid")
+    offset = request.GET.get("offset", 0)
+    limit = request.GET.get("limit", 10)
+    page = int(offset) + 1
+    limit = int(limit)
+    received_message_records = UserMessage.objects.filter(message_to_id=uid, deleted=False)
+    paginator = Paginator(received_message_records, limit)
+    try:
+        received_message_records = UserMessageSerializer(paginator.page(page), many=True).data
+    except EmptyPage:
+        return BusinessError("没有更多数据")
+    return ApiResult(result=received_message_records)
+
+
+@api_view(["POST"])
+def delete_message(request):
+    uid = request.GET.get("uid")
+    message_id = request.POST.get("message_id")
+
+    try:
+        user_message = UserMessage.objects.get(pk=message_id, deleted=False)
+    except UserMessage.DoesNotExist as e:
+        logging.error(str(e))
+        return BusinessError(msg="未查找到留言", error=str(e))
+    if user_message.message_to_id != uid:
+        return BusinessError("无权删除")
+    user_message.deleted = True
+    user_message.save()
+    return ApiResult()
+
+
+@api_view(['POST'])
+@transaction.atomic
+def ask_contact(request, person_id):
+    uid = request.POST.get("uid")
+    contact_type = request.POST.get("contact_type")
+
+    exist_request = ContactExchange.objects.select_for_update().filter(exchange_sender_id=uid,
+                                                   exchange_receiver_id=person_id,
+                                                   exchange_type_id=contact_type,
+                                                   exchange_status=0)
+    if exist_request:
+        return BusinessError("您已经申请过")
+    contact_request = ContactExchange()
+    contact_request.exchange_sender_id = uid
+    contact_request.exchange_receiver_id = person_id
+    contact_request.exchange_type_id = contact_type
+    contact_request.save()
+    return ApiResult()
+
+
+@api_view(['POST'])
+def accept_contact(request, person_id):
+    uid = request.POST.get("uid")
+    contact_type = request.POST.get("contact_type")
+    exchange_contacts = ContactExchange.objects.filter(exchange_sender_id=person_id, exchange_receiver_id=uid, exchange_type_id=contact_type, exchange_status=0)
+    if not exchange_contacts:
+        return BusinessError("无此申请")
+
+    user_contact = UserContact.objects.filter(user_id=uid, type_id=contact_type, deleted=False)
+    if not user_contact:
+        return BusinessError("请先设置联系方式")
+
+    exchange_contacts.update(exchange_status=1)
+    return ApiResult()
+
+
+@api_view(['POST'])
+def deny_contact(request, person_id):
+    uid = request.POSt.get("uid")
+    contact_type = request.POST.get("contact_type")
+    exchange_contacts = ContactExchange.objects.filter(exchange_sender_id=person_id, exchange_receiver_id=uid, exchange_type_id=contact_type, exchange_status=0)
+
+    #user_contact = UserContact.objects.filter(user_id=uid, type_id=contact_type, deleted=False)
+    #if not user_contact:
+        #return BusinessError("请先设置联系方式")
+
+    exchange_contacts.update(exchange_status=2)
+    return ApiResult()
+
 
 
 
