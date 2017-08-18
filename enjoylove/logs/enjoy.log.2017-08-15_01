@@ -1,0 +1,200 @@
+DEBUG 2017-08-15 02:41:00,482 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'grappelli.urls' from '/root/enjoylove/lib/python2.7/site-packages/grappelli/urls.pyc'> (None:None) ^grappelli/>"
+DEBUG 2017-08-15 02:41:00,483 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u'<RegexURLResolver <RegexURLPattern list> (admin:admin) ^admin/>'
+DEBUG 2017-08-15 02:41:00,483 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'rest_framework.urls' from '/root/enjoylove/lib/python2.7/site-packages/rest_framework/urls.pyc'> (rest_framework:rest_framework) ^api-auth/>"
+DEBUG 2017-08-15 02:41:00,484 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'enjoy_love.urls' from '/root/enjoylove/enjoylove/enjoy_love/urls.pyc'> (None:None) ^user/>"
+DEBUG 2017-08-15 02:41:00,485 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'rest_framework_docs.urls' from '/root/enjoylove/lib/python2.7/site-packages/rest_framework_docs/urls.pyc'> (None:None) ^docs/>"
+DEBUG 2017-08-15 02:57:18,969 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'grappelli.urls' from '/root/enjoylove/lib/python2.7/site-packages/grappelli/urls.pyc'> (None:None) ^grappelli/>"
+DEBUG 2017-08-15 02:57:18,969 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u'<RegexURLResolver <RegexURLPattern list> (admin:admin) ^admin/>'
+DEBUG 2017-08-15 02:57:18,970 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'rest_framework.urls' from '/root/enjoylove/lib/python2.7/site-packages/rest_framework/urls.pyc'> (rest_framework:rest_framework) ^api-auth/>"
+DEBUG 2017-08-15 02:57:18,971 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'enjoy_love.urls' from '/root/enjoylove/enjoylove/enjoy_love/urls.pyc'> (None:None) ^user/>"
+DEBUG 2017-08-15 02:57:18,971 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'rest_framework_docs.urls' from '/root/enjoylove/lib/python2.7/site-packages/rest_framework_docs/urls.pyc'> (None:None) ^docs/>"
+DEBUG 2017-08-15 03:18:52,215 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'grappelli.urls' from '/root/enjoylove/lib/python2.7/site-packages/grappelli/urls.pyc'> (None:None) ^grappelli/>"
+DEBUG 2017-08-15 03:18:52,215 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u'<RegexURLResolver <RegexURLPattern list> (admin:admin) ^admin/>'
+DEBUG 2017-08-15 03:18:52,216 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'rest_framework.urls' from '/root/enjoylove/lib/python2.7/site-packages/rest_framework/urls.pyc'> (rest_framework:rest_framework) ^api-auth/>"
+DEBUG 2017-08-15 03:18:52,216 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'enjoy_love.urls' from '/root/enjoylove/enjoylove/enjoy_love/urls.pyc'> (None:None) ^user/>"
+DEBUG 2017-08-15 03:18:52,217 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'rest_framework_docs.urls' from '/root/enjoylove/lib/python2.7/site-packages/rest_framework_docs/urls.pyc'> (None:None) ^docs/>"
+DEBUG 2017-08-15 03:18:52,259 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'grappelli.urls' from '/root/enjoylove/lib/python2.7/site-packages/grappelli/urls.pyc'> (None:None) ^grappelli/>"
+DEBUG 2017-08-15 03:18:52,259 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u'<RegexURLResolver <RegexURLPattern list> (admin:admin) ^admin/>'
+DEBUG 2017-08-15 03:18:52,260 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'rest_framework.urls' from '/root/enjoylove/lib/python2.7/site-packages/rest_framework/urls.pyc'> (rest_framework:rest_framework) ^api-auth/>"
+DEBUG 2017-08-15 03:18:52,260 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'enjoy_love.urls' from '/root/enjoylove/enjoylove/enjoy_love/urls.pyc'> (None:None) ^user/>"
+DEBUG 2017-08-15 03:18:52,261 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'rest_framework_docs.urls' from '/root/enjoylove/lib/python2.7/site-packages/rest_framework_docs/urls.pyc'> (None:None) ^docs/>"
+DEBUG 2017-08-15 03:18:52,311 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'grappelli.urls' from '/root/enjoylove/lib/python2.7/site-packages/grappelli/urls.pyc'> (None:None) ^grappelli/>"
+DEBUG 2017-08-15 03:18:52,312 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u'<RegexURLResolver <RegexURLPattern list> (admin:admin) ^admin/>'
+DEBUG 2017-08-15 03:18:52,312 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'rest_framework.urls' from '/root/enjoylove/lib/python2.7/site-packages/rest_framework/urls.pyc'> (rest_framework:rest_framework) ^api-auth/>"
+DEBUG 2017-08-15 03:18:52,313 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'enjoy_love.urls' from '/root/enjoylove/enjoylove/enjoy_love/urls.pyc'> (None:None) ^user/>"
+DEBUG 2017-08-15 03:18:52,313 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'rest_framework_docs.urls' from '/root/enjoylove/lib/python2.7/site-packages/rest_framework_docs/urls.pyc'> (None:None) ^docs/>"
+DEBUG 2017-08-15 03:18:52,318 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'grappelli.urls' from '/root/enjoylove/lib/python2.7/site-packages/grappelli/urls.pyc'> (None:None) ^grappelli/>"
+DEBUG 2017-08-15 03:18:52,319 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u'<RegexURLResolver <RegexURLPattern list> (admin:admin) ^admin/>'
+DEBUG 2017-08-15 03:18:52,319 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'rest_framework.urls' from '/root/enjoylove/lib/python2.7/site-packages/rest_framework/urls.pyc'> (rest_framework:rest_framework) ^api-auth/>"
+DEBUG 2017-08-15 03:18:52,319 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'enjoy_love.urls' from '/root/enjoylove/enjoylove/enjoy_love/urls.pyc'> (None:None) ^user/>"
+DEBUG 2017-08-15 03:18:52,320 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'rest_framework_docs.urls' from '/root/enjoylove/lib/python2.7/site-packages/rest_framework_docs/urls.pyc'> (None:None) ^docs/>"
+DEBUG 2017-08-15 03:18:53,299 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'grappelli.urls' from '/root/enjoylove/lib/python2.7/site-packages/grappelli/urls.pyc'> (None:None) ^grappelli/>"
+DEBUG 2017-08-15 03:18:53,299 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u'<RegexURLResolver <RegexURLPattern list> (admin:admin) ^admin/>'
+DEBUG 2017-08-15 03:18:53,300 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'rest_framework.urls' from '/root/enjoylove/lib/python2.7/site-packages/rest_framework/urls.pyc'> (rest_framework:rest_framework) ^api-auth/>"
+DEBUG 2017-08-15 03:18:53,300 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'enjoy_love.urls' from '/root/enjoylove/enjoylove/enjoy_love/urls.pyc'> (None:None) ^user/>"
+DEBUG 2017-08-15 03:18:53,301 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'rest_framework_docs.urls' from '/root/enjoylove/lib/python2.7/site-packages/rest_framework_docs/urls.pyc'> (None:None) ^docs/>"
+DEBUG 2017-08-15 03:18:53,660 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'grappelli.urls' from '/root/enjoylove/lib/python2.7/site-packages/grappelli/urls.pyc'> (None:None) ^grappelli/>"
+DEBUG 2017-08-15 03:18:53,660 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u'<RegexURLResolver <RegexURLPattern list> (admin:admin) ^admin/>'
+DEBUG 2017-08-15 03:18:53,661 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'rest_framework.urls' from '/root/enjoylove/lib/python2.7/site-packages/rest_framework/urls.pyc'> (rest_framework:rest_framework) ^api-auth/>"
+DEBUG 2017-08-15 03:18:53,661 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'enjoy_love.urls' from '/root/enjoylove/enjoylove/enjoy_love/urls.pyc'> (None:None) ^user/>"
+DEBUG 2017-08-15 03:18:53,662 /root/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/root/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'rest_framework_docs.urls' from '/root/enjoylove/lib/python2.7/site-packages/rest_framework_docs/urls.pyc'> (None:None) ^docs/>"
