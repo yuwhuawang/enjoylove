@@ -198,10 +198,13 @@ class PersonDetailSerializer(serializers.ModelSerializer):
 
 class UserMessageSerializer(serializers.ModelSerializer):
     sender_id = serializers.IntegerField(source="message_from.id")
+    sender_name = serializers.CharField(source="message_from.profile.nickname")
     sender_avatar = serializers.CharField(source="message_from.profile.avatar")
     receiver_id = serializers.IntegerField(source="message_to.id")
+    receiver_name = serializers.CharField(source="message_to.profile.nickname")
     receiver_avatar = serializers.CharField(source="message_to.profile.avatar")
 
     class Meta:
         model = UserMessage
-        fields = ("id", "sender_id", "sender_avatar", "receiver_id", "receiver_avatar", "content", "create_time",)
+        fields = ("id", "sender_id", "sender_name", "sender_avatar",
+                  "receiver_id", "receiver_name", "receiver_avatar", "content", "create_time",)

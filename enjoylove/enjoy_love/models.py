@@ -407,7 +407,7 @@ class ContactExchange(models.Model):
     class Meta:
         verbose_name = "联系方式交换记录"
         verbose_name_plural = "联系方式交换记录"
-        unique_together = ("exchange_sender", "exchange_receiver", "exchange_type" )
+        #unique_together = ("exchange_sender", "exchange_receiver", "exchange_type" )
     exchange_sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="exchange_sender", related_query_name ="exchange_sender")
     exchange_receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="exchange_receiver", related_query_name ="exchange_receiver")
     exchange_type = models.ForeignKey(ContactType, on_delete=models.CASCADE, related_name="exchange_type", related_query_name ="exchange_type")

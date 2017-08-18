@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import django.db
+import django.db.models
 import django.db.transaction
 import django.http
 import logging
@@ -14,7 +15,7 @@ from enjoy_love.api_result import ApiResult, BusinessError
 #from django.core.cache import cache
 from django.db import transaction
 from django.core import cache
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage
 # Create your views here.
 from enjoy_love.models import (User, Profile, IdentityVerify,
                                GlobalSettings, PersonalTag,
@@ -39,6 +40,7 @@ import datetime
 from collections import OrderedDict, defaultdict
 
 from django.db.models import Q
+from django.core.exceptions import ObjectDoesNotExist
 
 
 
@@ -548,7 +550,10 @@ def person_list(request):
     user_list = User.objects.filter(**query_params).order_by("-profile__on_top", "?")
 
     paginator = Paginator(user_list, limit)
-    person_list = PersonListSerializer(paginator.page(page), many=True).data
+    try:
+        person_list = PersonListSerializer(paginator.page(page), many=True).data
+    except EmptyPage:
+        return BusinessError("没有更多数据")
 
     advertisements = Advertisement.objects.filter(valid=True, expire_time__gt=datetime.datetime.now(),  show_place__in=[0, 1], show_page=page)
 
@@ -682,45 +687,86 @@ def leave_message(request, person_id):
 @api_view(['GET'])
 def messages_sent(request):
     uid = request.GET.get("uid")
+    offset = request.GET.get("offset", 0)
+    limit = request.GET.get("limit", 10)
     out_message_records = UserMessage.objects.filter(message_from_id=uid, deleted=False)
-    out_message_records = UserMessageSerializer(out_message_records, many=True).data
+    page = int(offset) + 1
+    limit = int(limit)
+    paginator = Paginator(out_message_records, limit)
+    try:
+        out_message_records = UserMessageSerializer(paginator.page(page), many=True).data
+    except EmptyPage:
+        return BusinessError("没有更多数据")
+
     return ApiResult(result=out_message_records)
 
 
 @api_view(['GET'])
 def messages_received(request):
     uid = request.GET.get("uid")
+    offset = request.GET.get("offset", 0)
+    limit = request.GET.get("limit", 10)
+    page = int(offset) + 1
+    limit = int(limit)
     received_message_records = UserMessage.objects.filter(message_to_id=uid, deleted=False)
-    received_message_records = UserMessageSerializer(received_message_records, many=True).data
+    paginator = Paginator(received_message_records, limit)
+    try:
+        received_message_records = UserMessageSerializer(paginator.page(page), many=True).data
+    except EmptyPage:
+        return BusinessError("没有更多数据")
     return ApiResult(result=received_message_records)
 
 
+@api_view(["POST"])
+def delete_message(request):
+    uid = request.GET.get("uid")
+    message_id = request.POST.get("message_id")
+
+    try:
+        user_message = UserMessage.objects.get(pk=message_id, deleted=False)
+    except UserMessage.DoesNotExist as e:
+        logging.error(str(e))
+        return BusinessError(msg="未查找到留言", error=str(e))
+    if user_message.message_to_id != uid:
+        return BusinessError("无权删除")
+    user_message.deleted = True
+    user_message.save()
+    return ApiResult()
+
+
 @api_view(['POST'])
+@transaction.atomic
 def ask_contact(request, person_id):
     uid = request.POST.get("uid")
     contact_type = request.POST.get("contact_type")
 
+    exist_request = ContactExchange.objects.select_for_update().filter(exchange_sender_id=uid,
+                                                   exchange_receiver_id=person_id,
+                                                   exchange_type_id=contact_type,
+                                                   exchange_status=0)
+    if exist_request:
+        return BusinessError("您已经申请过")
     contact_request = ContactExchange()
     contact_request.exchange_sender_id = uid
     contact_request.exchange_receiver_id = person_id
     contact_request.exchange_type_id = contact_type
     contact_request.save()
-
     return ApiResult()
 
 
 @api_view(['POST'])
 def accept_contact(request, person_id):
-    uid = request.POSt.get("uid")
+    uid = request.POST.get("uid")
     contact_type = request.POST.get("contact_type")
     exchange_contacts = ContactExchange.objects.filter(exchange_sender_id=person_id, exchange_receiver_id=uid, exchange_type_id=contact_type, exchange_status=0)
+    if not exchange_contacts:
+        return BusinessError("无此申请")
 
     user_contact = UserContact.objects.filter(user_id=uid, type_id=contact_type, deleted=False)
     if not user_contact:
         return BusinessError("请先设置联系方式")
 
-    exchange_contacts.exchange_status = 1
-    exchange_contacts.save()
+    exchange_contacts.update(exchange_status=1)
     return ApiResult()
 
 
@@ -734,8 +780,7 @@ def deny_contact(request, person_id):
     #if not user_contact:
         #return BusinessError("请先设置联系方式")
 
-    exchange_contacts.exchange_status = 2
-    exchange_contacts.save()
+    exchange_contacts.update(exchange_status=2)
     return ApiResult()
 
 
