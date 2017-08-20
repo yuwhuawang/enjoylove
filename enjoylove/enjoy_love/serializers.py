@@ -124,11 +124,12 @@ class PersonListSerializer(serializers.ModelSerializer):
     avatar = serializers.CharField(source="profile.avatar")
     type = serializers.IntegerField(default=1)
     content = serializers.DictField(default={})
+    vip = serializers.CharField(source="profile.vip.vip_type")
 
     class Meta:
         model = User
         fields = ("uid", "account", "identity_verified", "avatar", "nickname", "work_area", "age", "height", "career",
-                  "income", "person_intro", "like", "type", "content")
+                  "income", "person_intro", "like", "type", "content", "vip")
 
 
 class PersonDetailSerializer(serializers.ModelSerializer):
@@ -157,7 +158,7 @@ class PersonDetailSerializer(serializers.ModelSerializer):
     has_children = serializers.CharField(source="profile.get_has_children_display")
     weight = serializers.CharField(source="profile.weight")
     avatar = serializers.CharField(source="profile.avatar")
-    vip = serializers.IntegerField(source="profile.vip.type")
+    vip = serializers.CharField(source="profile.vip.vip_type")
     has_car = serializers.CharField(source="profile.get_has_car_display")
     has_house = serializers.CharField(source="profile.get_has_house_display")
     relationship_desc = serializers.CharField(source="profile.relationship_desc")
