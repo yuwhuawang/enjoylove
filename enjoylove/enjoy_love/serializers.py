@@ -198,7 +198,7 @@ class PersonDetailSerializer(serializers.ModelSerializer):
         data['messages'] = UserMessageSerializer(
             UserMessage.objects.filter(message_to=obj, deleted=False)[0:3], many=True
         ).data
-
+        data['messages_count'] = UserMessage.objects.filter(message_to=obj, deleted=False).count()
 
         return data
 

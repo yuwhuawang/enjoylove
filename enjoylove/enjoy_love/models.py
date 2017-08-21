@@ -377,6 +377,13 @@ class LikeRecord(models.Model):
     #valid = models.BooleanField("是否有效", default=True)
     create_time = models.DateTimeField(auto_now_add=True)
 
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        user = User.objects.get(pk=self.like_to_id)
+        user.profile.like += 1
+        user.profile.save()
+        super(LikeRecord, self).save()
+
 
 class UserMessage(models.Model):
     class Meta:

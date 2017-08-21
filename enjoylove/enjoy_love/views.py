@@ -563,8 +563,9 @@ def person_list(request):
                     cache.cache.set("{}_like_{}".format(uid, person['uid']), True, 60*10)
                 except LikeRecord.DoesNotExist:
                         cache.cache.set("{}_like_{}".format(uid, person['uid']), False, 60*10)
-
-            person['is_like'] = is_like
+                person['is_like'] = is_like
+            else:
+                person['is_like'] = like_record
 
     except EmptyPage:
         return BusinessError("没有更多数据")
@@ -684,6 +685,9 @@ def set_unlike(request, person_id):
     if not like_record:
         return BusinessError("未喜欢过")
     like_record.delete()
+    user = User.objects.get(pk=person_id)
+    user.profile.like -= 1
+    user.profile.save()
     cache.cache.set("{}_like_{}".format(uid, person_id), False, 60*10)
     return ApiResult()
 
