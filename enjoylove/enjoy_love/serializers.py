@@ -8,7 +8,8 @@ from models import (User, Profile, GlobalSettings,
                     PersonalInterest, UserInterest,
                     UserContact,
                     ContactType, FilterControl,
-                    FilterOptions, UserMessage)
+                    FilterOptions, UserMessage,
+                    LikeRecord)
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -195,8 +196,10 @@ class PersonDetailSerializer(serializers.ModelSerializer):
             Album.objects.filter(deleted=False, user=obj), many=True).data
 
         data['messages'] = UserMessageSerializer(
-            UserMessage.objects.filter(message_to=obj, deleted=False)[0:5], many=True
+            UserMessage.objects.filter(message_to=obj, deleted=False)[0:3], many=True
         ).data
+
+
         return data
 
 

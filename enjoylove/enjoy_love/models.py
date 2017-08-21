@@ -412,6 +412,7 @@ class ContactExchange(models.Model):
     exchange_receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="exchange_receiver", related_query_name ="exchange_receiver")
     exchange_type = models.ForeignKey(ContactType, on_delete=models.CASCADE, related_name="exchange_type", related_query_name ="exchange_type")
     exchange_status = models.SmallIntegerField("状态", choices=EXCHANGE_STATUS, default=0)
+    create_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.exchange_type.name

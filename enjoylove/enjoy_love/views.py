@@ -552,6 +552,20 @@ def person_list(request):
     paginator = Paginator(user_list, limit)
     try:
         person_list = PersonListSerializer(paginator.page(page), many=True).data
+        for person in person_list:
+            is_like = False
+            like_record = cache.cache.get("{}_like_{}".format(uid, person['uid']))
+            if like_record is None:
+                try:
+                    like_record = LikeRecord.objects.get(like_from_id=uid,
+                                                         like_to_id=person['uid'])
+                    is_like = True
+                    cache.cache.set("{}_like_{}".format(uid, person['uid']), True, 60*10)
+                except LikeRecord.DoesNotExist:
+                        cache.cache.set("{}_like_{}".format(uid, person['uid']), False, 60*10)
+
+            person['is_like'] = is_like
+
     except EmptyPage:
         return BusinessError("没有更多数据")
 
@@ -601,39 +615,46 @@ def person_detail(request, person_id):
         return BusinessError("无此人物", error=str(e))
     uid = request.GET.get("uid")
     if uid:
-        like_record = LikeRecord.objects.filter(like_from__id=uid, like_to__id=person_id)
+        like_record = cache.cache.get("{}_like_{}".format(uid, person_id))
+        if like_record is None:
+            like_record = LikeRecord.objects.filter(like_from__id=uid, like_to__id=person_id)
         if like_record:
             liked = True
+            cache.cache.set("{}_like_{}".format(uid, person_id), True, 60*10)
+        else:
+            cache.cache.set("{}_like_{}".format(uid, person_id), False, 60*10)
         can_leave_message = True
 
     qq_exchange = ContactExchange.objects.filter(Q(exchange_type__name="QQ"),
                                                  Q(exchange_sender_id=uid) & Q(exchange_receiver_id=person_id) |
                                                  Q(exchange_sender_id=person_id) & Q(exchange_receiver_id=uid)
-                                                 )
+                                                 ).order_by("-create_time")
 
     wechat_exchange = ContactExchange.objects.filter(Q(exchange_type__name="微信"),
                                                  Q(exchange_sender_id=uid) & Q(exchange_receiver_id=person_id) |
                                                  Q(exchange_sender_id=person_id) & Q(exchange_receiver_id=uid)
-                                                 )
+                                                 ).order_by("-create_time")
 
     if qq_exchange:
-        if qq_exchange.status == 1:
+        if qq_exchange[0].exchange_status == 1:
             qq_contact = UserContact.objects.filter(user_id=person_id, type__name="QQ", deleted=False)
             qq_result['status'] = 1
             if qq_contact:
                 qq_result['content'] = qq_contact[0].content
 
-        elif qq_exchange.status == 2:
+        elif qq_exchange[0].exchange_status == 2:
             qq_result['status'] = 2
 
     if wechat_exchange:
-        if wechat_exchange.status == 1:
+        if wechat_exchange[0].exchange_status == 1:
             wechat_contact = UserContact.objects.filter(user_id=person_id, type__name="微信", deleted=False)
             wechat_result['status'] = 1
             if wechat_contact:
                 wechat_result['content'] = wechat_contact[0].content
+        elif wechat_exchange[0].exchange_status == 2:
+            wechat_result['status'] = 2
 
-    person_detail['liked'] = liked
+    person_detail['is_like'] = liked
     person_detail['can_leave_message'] = can_leave_message
     person_detail['contact_result'] = [qq_result, wechat_result]
 
@@ -651,6 +672,7 @@ def set_like(request, person_id):
     new_like.like_from_id = uid
     new_like.like_to_id = person_id
     new_like.save()
+    cache.cache.set("{}_like_{}".format(uid, person_id), True, 60*10)
     return ApiResult()
 
 
@@ -662,6 +684,7 @@ def set_unlike(request, person_id):
     if not like_record:
         return BusinessError("未喜欢过")
     like_record.delete()
+    cache.cache.set("{}_like_{}".format(uid, person_id), False, 60*10)
     return ApiResult()
 
 
