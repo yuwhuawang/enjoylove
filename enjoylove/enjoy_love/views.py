@@ -612,7 +612,7 @@ def person_detail(request, person_id):
         person_detail = PersonDetailSerializer(person).data
     except Exception as e:
         logging.error(str(e))
-        return BusinessError("无此人物")
+        return BusinessError("无此人物", error=str(e))
     uid = request.GET.get("uid")
     if uid:
         like_record = cache.cache.get("{}_like_{}".format(uid, person_id))

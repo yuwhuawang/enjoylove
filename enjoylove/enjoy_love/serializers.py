@@ -122,12 +122,15 @@ class PersonListSerializer(serializers.ModelSerializer):
     income = serializers.CharField(source="profile.income")
     person_intro = serializers.CharField(source="profile.person_intro")
     like = serializers.IntegerField(source="profile.like")
+    avatar = serializers.CharField(source="profile.avatar")
     type = serializers.IntegerField(default=1)
     content = serializers.DictField(default={})
+    vip = serializers.CharField(source="profile.vip.vip_type")
 
     class Meta:
         model = User
-        fields = ("uid", "account", "identity_verified", "nickname", "work_area", "age", "height", "career", "income", "person_intro", "like", "type", "content")
+        fields = ("uid", "account", "identity_verified", "avatar", "nickname", "work_area", "age", "height", "career",
+                  "income", "person_intro", "like", "type", "content", "vip")
 
 
 class PersonDetailSerializer(serializers.ModelSerializer):
@@ -140,6 +143,7 @@ class PersonDetailSerializer(serializers.ModelSerializer):
 
     person_id = serializers.IntegerField(source="id")
     nickname = serializers.CharField(source="profile.nickname")
+    person_intro = serializers.CharField(source ="profile.person_intro")
     work_area_name = serializers.CharField(source="profile.work_area_name")
     born_area_name = serializers.CharField(source="profile.born_area_name")
     birth_date = serializers.DateField(source="profile.birth_date")
@@ -155,7 +159,7 @@ class PersonDetailSerializer(serializers.ModelSerializer):
     has_children = serializers.CharField(source="profile.get_has_children_display")
     weight = serializers.CharField(source="profile.weight")
     avatar = serializers.CharField(source="profile.avatar")
-    vip = serializers.IntegerField(source="profile.vip.type")
+    vip = serializers.CharField(source="profile.vip.vip_type")
     has_car = serializers.CharField(source="profile.get_has_car_display")
     has_house = serializers.CharField(source="profile.get_has_house_display")
     relationship_desc = serializers.CharField(source="profile.relationship_desc")
@@ -169,7 +173,7 @@ class PersonDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("person_id", "nickname", "identity_verified",
+        fields = ("person_id", "nickname", "person_intro", "identity_verified",
                   "work_area_name", "age", "height", "career",
                   "income", "expect_marry_date", "nationality",
                   "marriage_status", "birth_index", "has_children",
