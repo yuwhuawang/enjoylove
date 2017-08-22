@@ -339,6 +339,7 @@ class GlobalSettings(models.Model):
         verbose_name_plural = "app设置"
     key = models.CharField("名称", max_length=20)
     value = models.CharField("值", max_length= 100)
+    desc = models.TextField("描述", null = True, blank = True)
     valid = models.BooleanField("是否有效", default=True)
 
 

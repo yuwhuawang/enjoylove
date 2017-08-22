@@ -95,8 +95,8 @@ class IdentityVerifyAdmin(admin.ModelAdmin):
 
 @admin.register(GlobalSettings)
 class GlobalSettingAdmin(admin.ModelAdmin):
-    list_display = ("key", "value", "valid")
-    list_editable = ("value", )
+    list_display = ("key", "value", "desc", "valid")
+    list_editable = ("value", "desc")
     list_filter = ("valid", )
 
 

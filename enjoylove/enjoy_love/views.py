@@ -95,7 +95,7 @@ def user_init(request):
     psesonal_interests_data = PersonalInterestSerializer(personal_interests, many=True)
     filters_data = FilterControlSerializer(filters, many=True)
 
-    return ApiResult({"user_info": user_info,
+    return ApiResult(result = {"user_info": user_info,
                       "global_info": global_setting_data,
                       "personal_tags": personal_tags_data,
                       "personal_interests": psesonal_interests_data.data,
