@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'gunicorn',
     'enjoy_love',
+    'enjoy_orders',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_swagger',
