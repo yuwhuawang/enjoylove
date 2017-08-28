@@ -18,6 +18,6 @@ class OrdersAdmin(admin.ModelAdmin):
 
 
 
-    list_display = ("order_id", "uid", "nickname",)
+    list_display = ("oid", "uid", "nickname",)
     #list_filter = ("valid", )
     nickname.short_description = "昵称"
