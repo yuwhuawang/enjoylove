@@ -78,3 +78,34 @@ class Httplib2Mixin(object):
                 pass
 
         return h, b
+
+
+class NotifyUtil(object):
+
+    def __init__(self, backend):
+        self.backend = backend
+
+    @classmethod
+    def fromRequest(cls, request, source):
+        use_raw_data = False
+        raw_data = None
+
+        if source == 'weixin':
+            util, data = WeixinNotifyUtil, XmlUtil().xml_to_dict(request.body)
+            use_raw_data = True
+            raw_data = data
+
+        elif source == 'alipay':
+            util, data = AlipayMobileNotifyUtil, request.POST
+
+
+        if form_class:
+            form = form_class(data)
+            if not form.is_valid():
+                raise Exception('Invalid data')
+            data = form.cleaned_data
+            if use_raw_data and raw_data:
+                data = raw_data
+        backend = util(data, source)
+
+        return cls(backend)

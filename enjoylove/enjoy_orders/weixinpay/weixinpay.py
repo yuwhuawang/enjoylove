@@ -59,3 +59,36 @@ def weixinpay_response_xml(params):
         'return_msg': 'OK'
     }
     return weixinpay_core.generate_response_data(return_info)
+
+
+class WeixinNotifyUtil(WeixinBaseUtil):
+
+    def __init__(self, notify_data, source='weixin'):
+        self.notify_data = notify_data
+        self.source = source
+
+    def isValid(self):
+        data = self.notify_data
+        return self.verify(data, data['sign'],
+                           [k for k in data if k != 'sign'])
+
+    def getTradeInfo(self):
+        data = self.notify_data
+
+        obj = {}
+        obj['source'] = self.source
+        obj['uuid'] = uuid.uuid4().get_hex()
+        obj['order_sn'] = data['out_trade_no']
+        obj['outer_order_sn'] = data['transaction_id']
+        obj['trade_date'] = datetime.datetime.strptime(data['time_end'],
+                                                       '%Y%m%d%H%M%S')
+        obj['status'] = data['return_code'] == 'SUCCESS' and \
+            data['result_code'] == 'SUCCESS'
+
+        return obj
+
+    def getSuccessMessage(self):
+        return XmlUtil.dict_to_xml({'return_code': 'SUCCESS'})
+
+    def getErrorMessage(self):
+        return XmlUtil.dict_to_xml({'return_code': 'FAILURE'})

@@ -43,6 +43,18 @@ RECEIPT_STATE_CHOICES = (
     (RECEIPT_STATE_FINISHED, _("Finished")),
 )
 
+NOTIFY_STATE_RECEIVED = 1
+NOTIFY_STATE_RECEIPT_PROCESSED = 2
+NOTIFY_STATE_FINISHED = 3
+NOTIFY_STATE_FAILURE = 4
+
+NOTIFY_STATE_CHOICES = (
+    (NOTIFY_STATE_RECEIVED, _("Received")),
+    (NOTIFY_STATE_RECEIPT_PROCESSED, _("Receipt processed")),
+    (NOTIFY_STATE_FINISHED, _("Finished")),
+    (NOTIFY_STATE_FAILURE, _("Failure")),
+)
+
 
 class Orders(models.Model):
 
@@ -60,7 +72,7 @@ class Orders(models.Model):
     user = models.ForeignKey(User)
     good = models.ForeignKey("Goods")
     count = models.IntegerField("数量")
-    amount = models.IntegerField("总价")
+    amount = models.IntegerField("总价(分)")
     platform = models.CharField("来源平台", max_length=64, blank=True, null=True)
     currency = models.CharField("货币", max_length=8, default="CNY")
 
@@ -134,3 +146,21 @@ class WeixinToken(TimeStampedModel):
 
     def __unicode__(self):
         return unicode(self.token)
+
+
+class Notify(models.Model):
+
+    uuid = models.CharField(_("Notify ID"), max_length=64, unique=True)
+    order_sn = models.CharField(_("Order SN"), max_length=64)
+    outer_order_sn = models.CharField(_("Outer Order SN"), max_length=64,
+                                      null=True, blank=True)
+    status = models.CharField(_("Status"), max_length=16)
+    state = models.IntegerField(_("State"), choices=NOTIFY_STATE_CHOICES,
+                                default=NOTIFY_STATE_RECEIVED)
+    source = models.CharField(_("Source"), max_length=32)
+    retry = models.IntegerField(_("Retry"), default=0)
+    trade_date = models.DateTimeField(_("Trade Date"))
+    create_date = models.DateTimeField(_("Created at"), auto_now_add=True)
+
+    class Meta:
+        ordering = ("-create_date", )
