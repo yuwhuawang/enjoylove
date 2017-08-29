@@ -1,21 +1,30 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import logging
+
+from django.http import HttpResponse
 from rest_framework.views import APIView
 from django.db import transaction
 from django.shortcuts import render
 
 from enjoylove.enjoy_love.api_result import ApiResult, BusinessError
+
+from enjoylove.enjoy_love import util
 from enjoylove.enjoy_orders.alipay import alipay, alipay_config
 from models import Orders, Goods
 from enjoy_love.models import User
 #from weixinpay import WeixinBaseUtil, WeixinNotifyUtil, WeixinUtil
 #from alipay import AlipayMobileBaseUtil
+
 from weixinpay import weixinpay_config, weixinpay
 from models import RECEIPT_STATE_READY, RECEIPT_STATE_NOTIFY_RECEIVED, RECEIPT_STATE_PARTNER_NOTIFY_PROCESSED, RECEIPT_STATE_FINISHED, \
     RECEIPT_STATUS_READY, RECEIPT_STATUS_SUCCEED, RECEIPT_STATUS_FAILURE,RECEIPT_STATUS_CLOSED
+from utils import persistNotify, delayProcessNotify
 
 # Create your views here.
+
+logger = logging.getLogger(__name__)
 
 
 class OrderCreateView(APIView):
@@ -100,7 +109,7 @@ class AlipayNotifyView(APIView):
         res = alipay.alipay_call_back(request)
 
 
-class NotifyView(APIView):
+class WeixinNotifyView(APIView):
 
     authentication_classes = ()
 
@@ -108,18 +117,17 @@ class NotifyView(APIView):
     def get(self, request, source=None):
         try:
 
-            util = NotifyUtil.fromRequest(request, source)
+            res = dict()
+            res = weixinpay.weixinpay_call_back(request)
 
-            # signature is ok and parameters is provided
-            if not util.isValid():
+            if not res:
                 transaction.rollback()
                 return HttpResponse('Invalid parameters', status=400)
-            if not util.isSucceed():
+            if res['result_code'] != "SUCCESS":
                 transaction.rollback()
-                return HttpResponse(util.getSuccessMessage())
-
+                return HttpResponse(weixinpay.weixinpay_response_xml("SUCCESS"))
             # persist the notify for furture usage
-            notify = util.persistNotify()
+            notify = persistNotify(res)
         except Exception as ex:
             logger.error('failed to veirfy notify, exception: %s', ex)
             transaction.rollback()
@@ -128,8 +136,8 @@ class NotifyView(APIView):
         # commit data to database to make sure data will not lost
         try:
             transaction.commit()
-
-            util.delayProcessNotify(notify)
+            #todo
+            delayProcessNotify(notify)
             return HttpResponse(util.getSuccessMessage())
         except transaction.TransactionManagementError as ex:
             logger.error('failed to commit data, exception: %s', ex)
