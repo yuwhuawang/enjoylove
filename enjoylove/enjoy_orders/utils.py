@@ -48,6 +48,16 @@ def is_module_patched_by_gevent(modulename):
         return False
 
 
+def get_client_ip(request):
+    if 'HTTP_X_REAL_IP' in request.META:
+        ip = request.META['HTTP_X_REAL_IP']
+    elif 'HTTP_X_FORWARDED_FOR' in request.META:
+        ip = request.META['HTTP_X_FORWARDED_FOR'].split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip.strip() or ''
+
+
 class Httplib2Mixin(object):
 
     is_gevent_patched = is_module_patched_by_gevent('socket')

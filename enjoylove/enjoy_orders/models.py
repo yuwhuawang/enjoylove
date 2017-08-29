@@ -52,6 +52,7 @@ class Orders(models.Model):
         ordering = ('-purchase_date', '-generate_date', )
 
     oid = models.CharField("商品id", max_length=64, blank=True)
+    product_name = models.CharField("商品名称", max_length=64, blank=True, null=True)
     outer_order_id = models.CharField(_("Outer Order"), max_length=64,
                                       null=True, blank=True)
     outer_trade_no = models.CharField(_("Outer trade no"), max_length=64,
@@ -61,7 +62,7 @@ class Orders(models.Model):
     count = models.IntegerField("数量")
     amount = models.IntegerField("总价")
     platform = models.CharField("来源平台", max_length=64, blank=True, null=True)
-    currency = models.CharField("货币", max_length=8, default="RMB")
+    currency = models.CharField("货币", max_length=8, default="CNY")
 
     status = models.IntegerField(_("Status"), choices=RECEIPT_STATUS_CHOICE,
                                  default=RECEIPT_STATUS_READY)
@@ -74,7 +75,6 @@ class Orders(models.Model):
     notify_url = models.CharField(_("Notify URL"), max_length=256, blank=True)
     state = models.IntegerField(_("State"), choices=RECEIPT_STATE_CHOICES,
                                 default=RECEIPT_STATE_READY)
-
 
     def __unicode__(self):
         return unicode(self.oid)
