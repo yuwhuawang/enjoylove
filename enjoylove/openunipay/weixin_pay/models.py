@@ -83,7 +83,7 @@ class WeiXinOrder(models.Model):
         valueDict = self._get_vlaue_dict()
         valueDict['nonce_str'] = random_helper.generate_nonce_str(23)
         valueDict['sign'] = sign(valueDict)
-        return xml_helper.XmlUtil.dict_to_xml(valueDict)
+        return xml_helper.dict_to_xml(valueDict)
 
 
 class WeiXinPayResult(models.Model):

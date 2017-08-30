@@ -7,9 +7,9 @@ from xlrd.xlsx import ET
 
 import lxml.etree as ET1
 
-from openunipay.util.random_helper import safe_utf8 as a
+#from openunipay.util.random_helper import safe_utf8 as a
 
-from enjoylove.openunipay.util.random_helper import safe_utf8
+from openunipay.util.random_helper import safe_utf8
 
 _xmldom_impl = getDOMImplementation()
 
