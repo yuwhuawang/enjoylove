@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import urllib
 import uuid
 
 import datetime
@@ -274,33 +275,6 @@ class CallbackNotify(models.Model):
             data[k] = safe_utf8(v)
         return urllib.urlencode(data)
 
-    def dumpEmailMessage(self):
-        from payment.models import Product
 
-        try:
-            product_name = Product.objects.get(uuid=self.product_name)
-        except:
-            product_name = self.product_name
-
-        message = '''
-        订单号: {}
-        游戏: {}
-        产品名称: {}
-        金额: {}分
-        回调地址: {}
-        Extra参数: {}
-        回调时间: {}
-        响应内容: {}
-        '''
-        return message.format(
-            safe_utf8(self.trans_no),
-            safe_utf8(self.client.name),
-            safe_utf8(product_name),
-            self.amount,
-            safe_utf8(self.callback_url),
-            safe_utf8(self.extra),
-            self.send_time,
-            safe_utf8(self.resp)
-        )
 
 

@@ -9,6 +9,7 @@ import lxml.etree as ET
 import requests
 from django.conf import settings
 from models import Notify
+from tasks import processNotify
 
 def safe_utf8(s):
     return isinstance(s, unicode) and s.encode('utf-8') or str(s)

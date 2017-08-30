@@ -117,13 +117,13 @@ def processReceipt(uuid):
 @celery.task
 def processCallbackNotify(uuid):
     try:
-        notify = nmodels.CallbackNotify.objects.get(uuid=uuid)
-    except nmodels.CallbackNotify.DoesNotExist:
+        notify = models.CallbackNotify.objects.get(uuid=uuid)
+    except models.CallbackNotify.DoesNotExist:
         return False, 'CallbackNotify {} not found'.format(uuid)
 
-    if notify.state == nmodels.PARTNERNOTIFY_STATE_FINISHED:
+    if notify.state == models.PARTNERNOTIFY_STATE_FINISHED:
         return True, 'Callback Notify {} already processed'.format(uuid)
-    if notify.state == nmodels.PARTNERNOTIFY_STATE_FAILURE:
+    if notify.state == models.PARTNERNOTIFY_STATE_FAILURE:
         return False, 'Callback Notify {} too many failure'.format(uuid)
     if notify.send_time > datetime.datetime.now():
         return False, 'Callback Notify {} not ready for process'.format(uuid)
@@ -136,22 +136,22 @@ def processCallbackNotify(uuid):
             with transaction.atomic():
                 notify.resp = resp
                 if resp == 'success':
-                    notify.status = nmodels.NOTIFY_STATUS_SUCCESS
-                    notify.state = nmodels.PARTNERNOTIFY_STATE_FINISHED
+                    notify.status = models.NOTIFY_STATUS_SUCCESS
+                    notify.state = models.PARTNERNOTIFY_STATE_FINISHED
                     notify.save()
                     return True, 'Callback notify {} succeed'.format(uuid)
                 else:
                     if notify.state not in [
-                            nmodels.PARTNERNOTIFY_STATE_RETRY_4, ]:
+                            models.PARTNERNOTIFY_STATE_RETRY_4, ]:
                         notify.state = notify.state + 1
                         notify.send_time = notify.send_time + \
                             datetime.timedelta(seconds=60)
                     else:
-                        notify.state = nmodels.PARTNERNOTIFY_STATE_FAILURE
-                    notify.status = nmodels.NOTIFY_STATUS_FAILURE
+                        notify.state = models.PARTNERNOTIFY_STATE_FAILURE
+                    notify.status = models.NOTIFY_STATUS_FAILURE
                     notify.save()
 
-                    if notify.state == nmodels.PARTNERNOTIFY_STATE_FAILURE:
+                    if notify.state == models.PARTNERNOTIFY_STATE_FAILURE:
                         processCallbackFailure.delay(notify)
 
                     return False, 'Callback notify {} failure'.format(uuid)
@@ -159,3 +159,17 @@ def processCallbackNotify(uuid):
             lock.release()
     else:
         return False, 'Can not acquire lock {}'.format(lock.key)
+
+
+@celery.task
+def processCallbackFailure(cb):
+    from django.conf import settings
+    from django.core.mail import send_mail
+
+    subject = settings.EMAIL_SUBJECT_PREFIX + '{} 通知失败'.format(cb.client.name.encode('utf-8'))
+    message = cb.dumpEmailMessage()
+    from_user = settings.EMAIL_HOST_USER
+    recipients = settings.DEVELOPERS + settings.OPERATORS
+    send_mail(subject, message, from_user, recipients)
+
+    return True
