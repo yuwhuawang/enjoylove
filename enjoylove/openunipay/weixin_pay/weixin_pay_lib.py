@@ -144,7 +144,7 @@ def __handle_weixin_api_xml_response(r, func):
     r.encoding = 'utf-8'
     _logger.info(u"response body is:{}".format(r.text))
     if r.status_code == 200:
-        responseData = xml_helper.xml_to_dict(r.text)
+        responseData = xml_helper.XmlUtil.xml_to_dict(r.text)
         if responseData['return_code'] == CODE_SUCC:
             # check sign
             __verify_response_data(responseData)
