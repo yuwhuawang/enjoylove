@@ -68,3 +68,94 @@ def processNotify(uuid):
             nlock.release()
     else:
         return False, 'Notify {} processed by other worker'.format(uuid)
+
+
+
+@celery.task
+def processReceipt(uuid):
+    #from notify import models as nmodels
+    #from notify import tasks as ntasks
+
+    rlock = Lock('receipt:{}'.format(uuid))
+    if rlock.acquire():
+        try:
+            try:
+                receipt = Orders.objects.get(uuid=uuid)
+            except Orders.DoesNotExist:
+                return False, 'Receipt {} not exists'.format(uuid)
+
+            if receipt.state in [models.RECEIPT_STATE_FINISHED, ]:
+                return True, 'Receipt {} already processed'.format(uuid)
+            elif receipt.state in [models.RECEIPT_STATE_READY, ]:
+                return False, 'Receipt {} is not ready'.format(uuid)
+            else:
+                # RECEIPT_STATE_NOTIFY_RECEIVED
+                with transaction.atomic():
+                    if receipt.state == \
+                            models.RECEIPT_STATE_PARTNER_NOTIFY_PROCESSED:
+                        receipt.state = models.RECEIPT_STATE_FINISHED
+                        receipt.save()
+                        return True, 'Receipt {} finished'.format(uuid)
+                    if not receipt.notify_url:
+                        receipt.state = models.RECEIPT_STATE_FINISHED
+                        receipt.save()
+                        return True, 'Receipt {} finished'.format(uuid)
+                    else:
+                        receipt.state = \
+                            models.RECEIPT_STATE_PARTNER_NOTIFY_PROCESSED
+                        receipt.save()
+                        notify = models.CallbackNotify.fromReceipt(receipt)
+
+                processCallbackNotify.delay(notify)
+                return True, 'Process {} processed'.format(uuid)
+        finally:
+            rlock.release()
+    else:
+        return False, 'Receipt {} processed by other worker'.format(uuid)
+
+
+@celery.task
+def processCallbackNotify(uuid):
+    try:
+        notify = nmodels.CallbackNotify.objects.get(uuid=uuid)
+    except nmodels.CallbackNotify.DoesNotExist:
+        return False, 'CallbackNotify {} not found'.format(uuid)
+
+    if notify.state == nmodels.PARTNERNOTIFY_STATE_FINISHED:
+        return True, 'Callback Notify {} already processed'.format(uuid)
+    if notify.state == nmodels.PARTNERNOTIFY_STATE_FAILURE:
+        return False, 'Callback Notify {} too many failure'.format(uuid)
+    if notify.send_time > datetime.datetime.now():
+        return False, 'Callback Notify {} not ready for process'.format(uuid)
+
+    lock = Lock('cn:{}'.format(uuid))
+    if lock.acquire():
+        try:
+            message = notify.dumpMessage()
+            resp = httputil.get(notify.callback_url, message)
+            with transaction.atomic():
+                notify.resp = resp
+                if resp == 'success':
+                    notify.status = nmodels.NOTIFY_STATUS_SUCCESS
+                    notify.state = nmodels.PARTNERNOTIFY_STATE_FINISHED
+                    notify.save()
+                    return True, 'Callback notify {} succeed'.format(uuid)
+                else:
+                    if notify.state not in [
+                            nmodels.PARTNERNOTIFY_STATE_RETRY_4, ]:
+                        notify.state = notify.state + 1
+                        notify.send_time = notify.send_time + \
+                            datetime.timedelta(seconds=60)
+                    else:
+                        notify.state = nmodels.PARTNERNOTIFY_STATE_FAILURE
+                    notify.status = nmodels.NOTIFY_STATUS_FAILURE
+                    notify.save()
+
+                    if notify.state == nmodels.PARTNERNOTIFY_STATE_FAILURE:
+                        processCallbackFailure.delay(notify)
+
+                    return False, 'Callback notify {} failure'.format(uuid)
+        finally:
+            lock.release()
+    else:
+        return False, 'Can not acquire lock {}'.format(lock.key)

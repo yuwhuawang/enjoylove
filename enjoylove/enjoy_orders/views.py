@@ -136,7 +136,6 @@ class WeixinNotifyView(APIView):
         # commit data to database to make sure data will not lost
         try:
             transaction.commit()
-            #todo
             delayProcessNotify(notify)
             return HttpResponse(util.getSuccessMessage())
         except transaction.TransactionManagementError as ex:

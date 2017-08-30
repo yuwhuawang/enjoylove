@@ -2,14 +2,46 @@
 from __future__ import unicode_literals
 
 import uuid
+
+import datetime
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
-
+import time
+import json
 # Create your models here.
 from enjoy_love.models import User
+from utils import safe_utf8
 
 
+NOTIFY_STATUS_READY = 0
+NOTIFY_STATUS_SUCCESS = 1
+NOTIFY_STATUS_FAILURE = 2
+
+NOTIFY_STATUS_CHOICE = (
+    (NOTIFY_STATUS_READY, _("Ready")),
+    (NOTIFY_STATUS_SUCCESS, _("Success")),
+    (NOTIFY_STATUS_FAILURE, _("Failure")),
+)
+
+
+PARTNERNOTIFY_STATE_READY = 1
+PARTNERNOTIFY_STATE_RETRY_1 = 2
+PARTNERNOTIFY_STATE_RETRY_2 = 3
+PARTNERNOTIFY_STATE_RETRY_3 = 4
+PARTNERNOTIFY_STATE_RETRY_4 = 5
+PARTNERNOTIFY_STATE_FAILURE = 6
+PARTNERNOTIFY_STATE_FINISHED = 7
+
+PARTNERNOTIFY_STATE_CHOICES = (
+    (PARTNERNOTIFY_STATE_READY, _("Ready")),
+    (PARTNERNOTIFY_STATE_RETRY_1, _("First Retry")),
+    (PARTNERNOTIFY_STATE_RETRY_2, _("Second Retry")),
+    (PARTNERNOTIFY_STATE_RETRY_3, _("Third Retry")),
+    (PARTNERNOTIFY_STATE_RETRY_4, _("4th Retry")),
+    (PARTNERNOTIFY_STATE_FAILURE, _("Failure")),
+    (PARTNERNOTIFY_STATE_FINISHED, _("Finished")),
+)
 
 RECEIPT_STATUS_READY = 1
 RECEIPT_STATUS_SUCCEED = 2
@@ -164,3 +196,111 @@ class Notify(models.Model):
 
     class Meta:
         ordering = ("-create_date", )
+
+
+class CallbackNotify(models.Model):
+
+    uuid = models.CharField(_("UUID"), max_length=64,
+                            default=lambda: uuid.uuid4().get_hex())
+    callback_url = models.CharField(_("Callback URL"), max_length=256)
+    product_name = models.CharField(_("Product Name"), max_length=64)
+    amount = models.IntegerField(_("Amount"))
+    currency = models.CharField(_("Currency"), max_length=8)
+    trans_no = models.CharField(_("Receipt UUID"), max_length=64)
+    result = models.CharField(_("Result"), max_length=8)
+    trade_time = models.BigIntegerField(_("Trade time"))
+
+    status = models.IntegerField(_("Status"), choices=NOTIFY_STATUS_CHOICE,
+                                 default=NOTIFY_STATUS_READY)
+    sign = models.CharField(_("Signature"), max_length=1024)
+    sign_type = models.CharField(_("Sign type"), max_length=8)
+    resp = models.TextField(_("Response"), blank=True, null=True)
+    state = models.IntegerField(_("State"), default=PARTNERNOTIFY_STATE_READY,
+                                choices=PARTNERNOTIFY_STATE_CHOICES)
+    send_time = models.DateTimeField(_("Should send after at"))
+    create_date = models.DateTimeField(_("Created at"), auto_now_add=True)
+
+    class Meta:
+        ordering = ('-create_date', )
+
+    def __unicode__(self):
+        return unicode(self.uuid)
+
+    @classmethod
+    def fromReceipt(cls, receipt):
+        trade_time = receipt.purchase_date or datetime.now()
+        trade_time = int(time.mktime(trade_time.timetuple()))
+
+        try:
+            extra = json.loads(receipt.extra)
+        except:
+            extra = {}
+        product_id = extra.get('product_id')
+
+        sign_data = dict(
+            notify_id=uuid.uuid4().get_hex(),
+            product=product_id,
+            extra=receipt.appendAttr,
+            trans_no=receipt.uuid,
+            result=receipt.get_trade_result(),
+            trade_time=trade_time,
+            amount=receipt.amount,
+            currency=receipt.currency)
+        sign_data['sign'] = receipt.client.sign_dict(sign_data)
+        sign_data['sign_type'] = 'rsa'
+        sign_data['uuid'] = sign_data['notify_id']
+        del sign_data['notify_id']
+        sign_data['product_name'] = sign_data['product']
+        del sign_data['product']
+        sign_data['send_time'] = datetime.now()
+        sign_data['callback_url'] = receipt.notify_url
+        sign_data['client'] = receipt.client
+
+        return cls.objects.create(**sign_data)
+
+    def dumpMessage(self):
+        data = dict(
+            product=self.product_name,
+            extra=self.extra,
+            trans_no=self.trans_no,
+            result=self.result,
+            notify_id=self.uuid,
+            trade_time=self.trade_time,
+            amount=self.amount,
+            currency=self.currency,
+            sign=self.sign,
+            sign_type=self.sign_type)
+        for k, v in data.items():
+            data[k] = safe_utf8(v)
+        return urllib.urlencode(data)
+
+    def dumpEmailMessage(self):
+        from payment.models import Product
+
+        try:
+            product_name = Product.objects.get(uuid=self.product_name)
+        except:
+            product_name = self.product_name
+
+        message = '''
+        订单号: {}
+        游戏: {}
+        产品名称: {}
+        金额: {}分
+        回调地址: {}
+        Extra参数: {}
+        回调时间: {}
+        响应内容: {}
+        '''
+        return message.format(
+            safe_utf8(self.trans_no),
+            safe_utf8(self.client.name),
+            safe_utf8(product_name),
+            self.amount,
+            safe_utf8(self.callback_url),
+            safe_utf8(self.extra),
+            self.send_time,
+            safe_utf8(self.resp)
+        )
+
+
