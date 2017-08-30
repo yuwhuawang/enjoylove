@@ -9,8 +9,9 @@ from rest_framework import serializers
 
 class ApiResult(Response):
 
-    def __init__(self, msg='ok', code=0, result={}, error=''):
-
+    def __init__(self, msg='ok', code=0, result=None, error=''):
+        if not result:
+            result = dict()
         data = {
             "code": code,
             "msg": msg,
@@ -25,8 +26,9 @@ class ApiResult(Response):
 
 
 class BusinessError(Response):
-    def __init__(self, msg='not ok', code=1, result={}, error=''):
-
+    def __init__(self, msg='not ok', code=1, result=None, error=''):
+        if not result:
+            result = dict()
         data = {
             "code": code,
             "msg": msg,

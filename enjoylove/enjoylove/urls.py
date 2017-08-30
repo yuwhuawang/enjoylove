@@ -33,5 +33,6 @@ urlpatterns = [
     url(r'^api-token-auth/', obtain_jwt_token),
     url(r'^api/$', schema_view),
     url(r'^docs/', include('rest_framework_docs.urls')),
+    url(r'^pay/', include('openunipay.api.urls'))
 
 ]

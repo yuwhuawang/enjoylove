@@ -42,12 +42,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'gunicorn',
     'enjoy_love',
-    'enjoy_orders',
+    #'enjoy_orders',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_swagger',
     'rest_framework_docs',
     'DjangoUeditor',
+    'openunipay',
+    'import_export'
 
 
 ]
@@ -270,3 +272,23 @@ SMS_OPERATION = "templateSMS"
 
 GRAPPELLI_ADMIN_TITLE = "enjoylove"
 GRAPPELLI_SWITCH_USER = True
+
+
+#####支付宝支付配置
+ALIPAY = {
+'partner':'XXX',  #支付宝partner ID
+'seller_id':'XXX', #收款方支付宝账号如 pan.weifeng@live.cn
+'notify_url':'https:#XXX/notify/alipay/', #支付宝异步通知接收URL
+'ali_public_key_pem':'PATH to PEM File', #支付宝公钥的PEM文件路径,在支付宝合作伙伴密钥管理中查看(需要使用合作伙伴支付宝公钥)。如何查看，请参看支付宝文档
+'rsa_private_key_pem':'PATH to PEM File',#您自己的支付宝账户的私钥的PEM文件路径。如何设置，请参看支付宝文档
+'rsa_public_key_pem':'PATH to PEM File',#您自己的支付宝账户的公钥的PEM文件路径。如何设置，请参看支付宝文档
+}
+#####微信支付配置
+WEIXIN = {
+'app_id':'XXX', #微信APPID
+'app_seckey':'XXX', #微信APP Sec Key
+'mch_id':'XXX', #微信商户ID
+'mch_seckey':'XXX',#微信商户seckey
+'mch_notify_url':'https://XXX/notify/weixin/', #微信支付异步通知接收URL
+'clientIp':'',#扫码支付时，会使用这个IP地址发送给微信API, 请设置为您服务器的IP
+}
