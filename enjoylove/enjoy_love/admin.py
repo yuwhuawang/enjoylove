@@ -10,7 +10,7 @@ from models import (User, Profile, Vip, IdentityVerify,
                     GlobalSettings, PersonalTag, UserTags,
                     Advertisement, UserContact, ContactType,
                     PersonalInterest, UserInterest, Album,
-                    FilterControl, FilterOptions)
+                    FilterControl, FilterOptions, FeedBack)
 from django.utils.safestring import mark_safe
 
 # Register your models here.
@@ -137,7 +137,20 @@ class FilterControlAdmin(admin.ModelAdmin):
     list_filter = ("valid", )
 
 
+@admin.register(FeedBack)
+class FeedbackAdmin(admin.ModelAdmin):
+    def uid(self, obj):
+        return obj.user.id
 
+    def username(self, obj):
+        return obj.user.username
+
+    list_display = ("msg", "uid", "username",
+                    "photo_1", "photo_2", "status")
+    list_editable = ("status", )
+    list_filter = ("status", )
+
+    username.short_description = "用户名"
 
 
 admin.site.unregister(User)

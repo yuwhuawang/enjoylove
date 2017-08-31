@@ -6,7 +6,8 @@ from views import (user_login, user_register, verify_sms_code, gen_sms_code,
                    get_user_tags, set_user_tags, user_init, user_album, set_album,
                    delete_album, user_contact, set_contact, person_list, person_detail, get_user_interests,
                    set_user_interests, set_like, set_unlike, leave_message,
-                   messages_sent, messages_received, ask_contact, accept_contact, deny_contact, delete_message)
+                   messages_sent, messages_received, ask_contact, accept_contact, deny_contact, delete_message,
+                   FeedBackView)
 urlpatterns = [
     url(r'^init', user_init),
     url(r'^login', user_login),
@@ -42,4 +43,6 @@ urlpatterns = [
     url(r'^ask/contact/(?P<person_id>[0-9]+)', ask_contact),
     url(r'^accept/contact/(?P<person_id>[0-9]+)', accept_contact),
     url(r'^deny/contact/(?P<person_id>[0-9]+)', deny_contact),
+
+    url(r'^feedback', FeedBackView.as_view())
 ]

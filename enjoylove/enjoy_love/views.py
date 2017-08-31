@@ -6,6 +6,8 @@ import django.db.models
 import django.db.transaction
 import django.http
 import logging
+
+import rest_framework.views
 import simplejson as json
 from django.contrib import auth
 from rest_framework.decorators import api_view, permission_classes
@@ -17,14 +19,15 @@ from django.db import transaction
 from django.core import cache
 from django.core.paginator import Paginator, EmptyPage
 # Create your views here.
-from enjoy_love.models import (User, Profile, IdentityVerify,
+from models import (User, Profile, IdentityVerify,
                                GlobalSettings, PersonalTag,
                                UserTags, Album, PersonalInterest,
                                UserInterest, UserContact, FilterControl,
                                Advertisement, LikeRecord, UserMessage,
-                               ContactExchange)
+                               ContactExchange, FeedBack)
 from django.contrib.auth.hashers import make_password
 from rest_framework_jwt.settings import api_settings
+
 
 from utils.sms import RestAPI as SMSSender
 from django.conf import settings
@@ -41,7 +44,7 @@ from collections import OrderedDict, defaultdict
 
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
-
+from rest_framework.views import APIView
 
 
 
@@ -799,7 +802,7 @@ def accept_contact(request, person_id):
 
 @api_view(['POST'])
 def deny_contact(request, person_id):
-    uid = request.POSt.get("uid")
+    uid = request.POST.get("uid")
     contact_type = request.POST.get("contact_type")
     exchange_contacts = ContactExchange.objects.filter(exchange_sender_id=person_id, exchange_receiver_id=uid, exchange_type_id=contact_type, exchange_status=0)
 
@@ -811,6 +814,20 @@ def deny_contact(request, person_id):
     return ApiResult()
 
 
+class FeedBackView(APIView):
+    def post(self, request):
+        uid = request.POST.get("uid")
+        msg = request.POST.get("msg")
+        photo_1 = request.POST.get("photo_1")
+        photo_2 = request.POST.get("photo_2")
+
+        FeedBack.objects.create(
+            user_id=uid,
+            msg=msg,
+            photo_1=photo_1,
+            photo_2=photo_2
+        )
+        return ApiResult()
 
 
 

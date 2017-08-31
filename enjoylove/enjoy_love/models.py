@@ -449,4 +449,23 @@ def update_verify_status(sender, instance, **kwargs):
         user.profile.save()
 
 
+class FeedBack(models.Model):
+    FEEDBACK_STATUS = ((0, "待处理"), (1, "已处理"), )
 
+    class Meta:
+        verbose_name = "用户反馈"
+        verbose_name_plural = "用户反馈"
+
+    msg = models.CharField("反馈内容", max_length=255)
+    photo_1 = models.TextField("反馈图片")
+    photo_2 = models.TextField("反馈图片2")
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    status = models.SmallIntegerField("状态", choices=FEEDBACK_STATUS, default=0)
+    create_time = models.DateTimeField(auto_now_add=True)
+    update_time = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.msg[:10]
+
+    def __unicode__(self):
+        return self.__str__()
