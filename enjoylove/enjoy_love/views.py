@@ -114,6 +114,9 @@ def user_register(request):
     password = request.POST.get("password")
     password2 = request.POST.get("password2")
     nickname = request.POST.get("nickname", "")
+    device_id = request.META.get("device_id", "")
+    platform = request.META.get("platform", "")
+    version_code = request.META.get("version_code", "")
     print username, "-----------", password
 
     if password != password2:
@@ -124,6 +127,9 @@ def user_register(request):
             return ApiResult(code=1, msg="用户名已存在，请重新选择")
         new_user = User.objects.create_user(username=username, password=password)
         new_user.profile.nickname = nickname
+        new_user.profile.device_id = device_id
+        new_user.profile.platform = platform
+        new_user.profile.version_code = version_code
         new_user.profile.save()
 
     except django.db.IntegrityError:
@@ -142,6 +148,9 @@ def user_register(request):
 def user_login(request):
     username = request.POST.get("mobile")
     password = request.POST.get("password")
+    device_id = request.META.get("device_id", "")
+    platform = request.META.get("platform", "")
+    version_code = request.META.get("version_code", "")
     user = auth.authenticate(username=username, password=password)
     if not user:
         return ApiResult(code=1, msg="用户名或密码错误")
@@ -151,6 +160,9 @@ def user_login(request):
     payload = jwt_payload_handler(user)
     token = jwt_encode_handler(payload)
     userserializer = UserSerializer(user)
+    user.profile.device_id = device_id
+    user.profile.platform = platform
+    user.profile.version_code = version_code
 
     return ApiResult(msg="登陆成功", result={"token":token,
                                            "user_info": userserializer.data})

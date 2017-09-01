@@ -43,3 +43,4 @@ djangorestframework-xml
 django-import-export
 pillow
 rsa
+lxml
