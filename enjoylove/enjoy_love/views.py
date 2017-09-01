@@ -482,7 +482,9 @@ def person_list(request):
     born_area_code = request.GET.get("born_area_code")
     min_height = request.GET.get("min_height")
     max_height = request.GET.get("max_height")
-    education = request.GET.get("education")
+    #education = request.GET.get("education")
+    min_education = request.GET.get("min_education")
+    max_education = request.GET.get("max_education")
     career = request.GET.get("career")
     income = request.GET.get("income")
     expect_marry_date = request.GET.get("expect_marry_date")
@@ -494,6 +496,7 @@ def person_list(request):
     has_car = request.GET.get("has_car")
     has_children = request.GET.get("has_children")
     has_house = request.GET.get("has_house")
+
 
     query_params = dict()
     #query_params['id'] = uid
@@ -513,8 +516,12 @@ def person_list(request):
         query_params['profile__min_height__gte'] = min_height
     if max_height:
         query_params['profile__max_height__lte'] = max_height
-    if education:
-        query_params['profile__education'] = education
+    #if education:
+    #    query_params['profile__education'] = education
+    if min_education:
+        query_params['profile__education__gte'] = min_education
+    if max_education:
+        query_params['profile__education__lte'] = max_education
     if career:
         query_params['profile__career'] = career
     if income:
