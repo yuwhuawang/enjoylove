@@ -18,7 +18,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from rest_framework_jwt.views import obtain_jwt_token
 from rest_framework_swagger.views import get_swagger_view
-from enjoy_love.views import user_init
+from enjoy_love.views import user_init, GetQiNiuTokenView
 
 
 schema_view = get_swagger_view(title='Pastebin API')
@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^user/', include('enjoy_love.urls')),
     url(r'^init', user_init),
+    url(r'^qiniu/token', GetQiNiuTokenView.as_view()),
     url(r'^api-token-auth/', obtain_jwt_token),
     url(r'^api/$', schema_view),
     url(r'^docs/', include('rest_framework_docs.urls')),

@@ -20,11 +20,11 @@ from django.core import cache
 from django.core.paginator import Paginator, EmptyPage
 # Create your views here.
 from models import (User, Profile, IdentityVerify,
-                               GlobalSettings, PersonalTag,
-                               UserTags, Album, PersonalInterest,
-                               UserInterest, UserContact, FilterControl,
-                               Advertisement, LikeRecord, UserMessage,
-                               ContactExchange, FeedBack)
+                    GlobalSettings, PersonalTag,
+                    UserTags, Album, PersonalInterest,
+                    UserInterest, UserContact, FilterControl,
+                    Advertisement, LikeRecord, UserMessage,
+                    ContactExchange, FeedBack, ContactType)
 from django.contrib.auth.hashers import make_password
 from rest_framework_jwt.settings import api_settings
 
@@ -460,10 +460,68 @@ def set_contact(request):
     contact_name = request.POST.get("type")
     contact_content = request.POST.get("content")
 
-    contact = UserContact.objects.get(user__id=uid, type__name=contact_name)
-    contact.content = contact_content
-    contact.save()
+    try:
+        contact = UserContact.objects.get(user__id=uid, type__name=contact_name)
+        contact.content = contact_content
+        contact.save()
+    except UserContact.DoesNotExist:
+        contact_type = ContactType.object.get(name=contact_name)
+        contact = UserContact()
+        contact.user_id = uid
+        contact.type = contact_type
+        contact.content = contact_content
+        contact.save()
+
     return ApiResult("设置成功")
+
+
+class SetContactView(APIView):
+
+    def post(self, request):
+        uid = request.POST.get("uid")
+        qq = request.POST.get("qq")
+        weixin = request.POST.get("weixin")
+        mobile = request.POST.get("mobile")
+
+        if qq:
+             try:
+                contact = UserContact.objects.get(user__id=uid, type__name="QQ")
+                contact.content = qq
+                contact.save()
+             except UserContact.DoesNotExist:
+                contact_type = ContactType.objects.get(name="QQ")
+                contact = UserContact()
+                contact.user_id = uid
+                contact.type = contact_type
+                contact.content = qq
+                contact.save()
+        if weixin:
+            try:
+                contact = UserContact.objects.get(user__id=uid, type__name="微信")
+                contact.content = weixin
+                contact.save()
+            except UserContact.DoesNotExist:
+                contact_type = ContactType.objects.get(name="微信")
+                contact = UserContact()
+                contact.user_id = uid
+                contact.type = contact_type
+                contact.content = weixin
+                contact.save()
+
+        if mobile:
+            try:
+                contact = UserContact.objects.get(user__id=uid, type__name="mobile")
+                contact.content = mobile
+                contact.save()
+            except UserContact.DoesNotExist:
+                contact_type = ContactType.objects.get(name="mobile")
+                contact = UserContact()
+                contact.user_id = uid
+                contact.type = contact_type
+                contact.content = mobile
+                contact.save()
+
+        return ApiResult()
 
 
 @api_view(["POST"])
@@ -848,6 +906,18 @@ class FeedBackView(APIView):
         )
         return ApiResult()
 
+from qiniu import Auth
+
+
+class GetQiNiuTokenView(APIView):
+
+    def get(self, request):
+        bucket = request.GET.get("bucket", settings.QINIU['default_bucket'])
+        key = request.GET.get("key")
+        expires = request.GET.get("expires", 3600)
+        q = Auth(settings.QINIU['access_key'], settings.QINIU['secret_key'])
+        token = q.upload_token(bucket, key=key, expires=int(expires))
+        return ApiResult(result ={"token": token})
 
 
 
