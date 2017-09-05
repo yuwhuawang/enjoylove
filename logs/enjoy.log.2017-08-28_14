@@ -1,0 +1,58 @@
+DEBUG 2017-08-28 14:23:24,322 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.000) SELECT @@SQL_AUTO_IS_NULL; args=None
+DEBUG 2017-08-28 14:23:24,325 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.000) SELECT VERSION(); args=None
+DEBUG 2017-08-28 14:23:24,356 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.029) SELECT `django_session`.`session_key`, `django_session`.`session_data`, `django_session`.`expire_date` FROM `django_session` WHERE (`django_session`.`session_key` = 'rsjxd9rhr46jj29cob5rd19cwvqfpe0n' AND `django_session`.`expire_date` > '2017-08-28 06:23:24.301566'); args=('rsjxd9rhr46jj29cob5rd19cwvqfpe0n', u'2017-08-28 06:23:24.301566')
+DEBUG 2017-08-28 14:23:24,398 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'grappelli.urls' from '/Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/grappelli/urls.pyc'> (None:None) ^grappelli/>"
+DEBUG 2017-08-28 14:23:24,400 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u'<RegexURLResolver <RegexURLPattern list> (admin:admin) ^admin/>'
+DEBUG 2017-08-28 14:23:24,401 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'rest_framework.urls' from '/Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/rest_framework/urls.pyc'> (rest_framework:rest_framework) ^api-auth/>"
+DEBUG 2017-08-28 14:23:24,401 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'enjoy_love.urls' from '/Users/yuwhuawang/enjoylove/enjoylove/enjoy_love/urls.pyc'> (None:None) ^user/>"
+DEBUG 2017-08-28 14:23:24,402 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'rest_framework_docs.urls' from '/Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/rest_framework_docs/urls.pyc'> (None:None) ^docs/>"
+WARNING 2017-08-28 14:23:24,405 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/core/servers/basehttp.py basehttp.py basehttp log_message 124: "GET /shuxue/report/593911be00d48e21d42d299b/class_homework_analysis?slideshow_item=593911be00d48e21d42d299b HTTP/1.1" 404 2918
+DEBUG 2017-08-28 14:23:25,434 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.000) SELECT @@SQL_AUTO_IS_NULL; args=None
+DEBUG 2017-08-28 14:23:25,435 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.000) SELECT VERSION(); args=None
+DEBUG 2017-08-28 14:23:25,439 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.001) SELECT `django_session`.`session_key`, `django_session`.`session_data`, `django_session`.`expire_date` FROM `django_session` WHERE (`django_session`.`session_key` = 'rsjxd9rhr46jj29cob5rd19cwvqfpe0n' AND `django_session`.`expire_date` > '2017-08-28 06:23:25.426384'); args=('rsjxd9rhr46jj29cob5rd19cwvqfpe0n', u'2017-08-28 06:23:25.426384')
+DEBUG 2017-08-28 14:23:25,450 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'grappelli.urls' from '/Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/grappelli/urls.pyc'> (None:None) ^grappelli/>"
+DEBUG 2017-08-28 14:23:25,452 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u'<RegexURLResolver <RegexURLPattern list> (admin:admin) ^admin/>'
+DEBUG 2017-08-28 14:23:25,453 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'rest_framework.urls' from '/Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/rest_framework/urls.pyc'> (rest_framework:rest_framework) ^api-auth/>"
+DEBUG 2017-08-28 14:23:25,454 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'enjoy_love.urls' from '/Users/yuwhuawang/enjoylove/enjoylove/enjoy_love/urls.pyc'> (None:None) ^user/>"
+DEBUG 2017-08-28 14:23:25,456 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/template/base.py base.py base _resolve_lookup 925: Exception while resolving variable 'name' in template 'unknown'.
+Traceback (most recent call last):
+  File "/Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/template/base.py", line 903, in _resolve_lookup
+    (bit, current))  # missing attribute
+VariableDoesNotExist: Failed lookup for key [name] in u"<RegexURLResolver <module 'rest_framework_docs.urls' from '/Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/rest_framework_docs/urls.pyc'> (None:None) ^docs/>"
+WARNING 2017-08-28 14:23:25,459 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/core/servers/basehttp.py basehttp.py basehttp log_message 124: "GET /favicon.ico HTTP/1.1" 404 2725

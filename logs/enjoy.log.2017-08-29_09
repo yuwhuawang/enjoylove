@@ -1,0 +1,12 @@
+DEBUG 2017-08-29 09:22:13,745 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.027) SELECT @@SQL_AUTO_IS_NULL; args=None
+DEBUG 2017-08-29 09:22:13,751 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.004) SELECT VERSION(); args=None
+DEBUG 2017-08-29 09:22:15,124 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.020) SHOW FULL TABLES; args=None
+DEBUG 2017-08-29 09:22:15,140 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.012) SELECT `django_migrations`.`app`, `django_migrations`.`name` FROM `django_migrations`; args=()
+DEBUG 2017-08-29 09:32:31,086 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.000) SELECT @@SQL_AUTO_IS_NULL; args=None
+DEBUG 2017-08-29 09:32:31,088 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.000) SELECT VERSION(); args=None
+DEBUG 2017-08-29 09:32:32,151 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.011) SHOW FULL TABLES; args=None
+DEBUG 2017-08-29 09:32:32,162 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.006) SELECT `django_migrations`.`app`, `django_migrations`.`name` FROM `django_migrations`; args=()
+DEBUG 2017-08-29 09:50:33,757 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.001) SELECT @@SQL_AUTO_IS_NULL; args=None
+DEBUG 2017-08-29 09:50:33,759 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.001) SELECT VERSION(); args=None
+DEBUG 2017-08-29 09:50:34,788 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.010) SHOW FULL TABLES; args=None
+DEBUG 2017-08-29 09:50:34,794 /Users/yuwhuawang/enjoylove/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.001) SELECT `django_migrations`.`app`, `django_migrations`.`name` FROM `django_migrations`; args=()
