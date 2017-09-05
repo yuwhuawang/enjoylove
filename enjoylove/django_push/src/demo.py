@@ -9,9 +9,9 @@ from umessage.androidpush import *
 from umessage.errorcodes import UMPushError, APIServerErrorCode
 
 #注意andorid和ios是不同的appkey和appMasterSecret。 在不同需求下换成各自的appkey。
-appKey = 'your appkey'
-appMasterSecret = 'your master secret'
-deviceToken = 'your token'
+appKey = '59ae32a8b27b0a3f39001dd7'
+appMasterSecret = 'vyyxbit1jsefyntk8afanho12r4zbzks'
+deviceToken = 'AirKWS71IfJEFbMdfxrJxgp79j9xY3cXwS4E6DVL2ePp'
 
 
 #android
@@ -22,7 +22,7 @@ def sendAndroidUnicast():
     unicast.setTitle("中文的title");
     unicast.setText("Android unicast text");
     unicast.goAppAfterOpen();
-    unicast.setDisplayType(AndroidNotification.DisplayType.NOTIFICATION);
+    unicast.setDisplayType(AndroidNotification.DisplayType.notification);
     unicast.setTestMode()
     pushClient = PushClient()
     pushClient.send(unicast)
@@ -33,7 +33,7 @@ def sendAndroidBroadcast():
     broadcast.setTitle("中文的title");
     broadcast.setText("Android broadcast text");
     broadcast.goAppAfterOpen();
-    broadcast.setDisplayType(AndroidNotification.DisplayType.NOTIFICATION);
+    broadcast.setDisplayType(AndroidNotification.DisplayType.notification);
     broadcast.setTestMode()
     #Set customized fields
     broadcast.setExtraField("test", "helloworld");
@@ -135,4 +135,5 @@ def printResult(ret):
 if __name__ == '__main__':
     #sendIOSUnicast()
     #sendIOSBroadcast()
-    sendIOSGroupcast()
+    #sendIOSGroupcast()
+    sendAndroidUnicast()
