@@ -104,8 +104,8 @@ class Profile(models.Model):
     on_top = models.BooleanField("是否置顶", default=False)
     age = models.IntegerField("年龄", default=0, blank=True)
     like = models.IntegerField("心动人数", default=0)
-    platform = models.CharField("手机平台", null=True, blank=True)
-    version_code = models.CharField("版本号", null=True, blank=True)
+    platform = models.CharField("手机平台", max_length=20, null=True, blank=True)
+    version_code = models.CharField("版本号", max_length=20, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.pk:

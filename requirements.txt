@@ -44,3 +44,4 @@ django-import-export
 pillow
 rsa
 lxml
+qiniu

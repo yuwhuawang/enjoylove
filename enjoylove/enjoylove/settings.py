@@ -292,3 +292,11 @@ WEIXIN = {
 'mch_notify_url':'https://XXX/notify/weixin/', #微信支付异步通知接收URL
 'clientIp':'',#扫码支付时，会使用这个IP地址发送给微信API, 请设置为您服务器的IP
 }
+
+
+#七牛配置
+QINIU = {
+    "access_key": "rPYAMUiFJfHPzG3meWILMARcIu-djqhv51a2lMO4",
+    "secret_key": "vGGTStOr2uuQR0CmKff3D3h6dfWT8V77uGMeOCMD",
+    "default_bucket": "xianglian-sns"
+}
