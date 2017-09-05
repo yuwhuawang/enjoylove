@@ -37,9 +37,10 @@ class AndroidNotification(UmengNotification):
                 self.rootJson["payload"] = payloadJson
             if "body" in payloadJson:
                 apsJson = payloadJson["body"]
+                apsJson[key] = value
             else:
                 payloadJson["body"] = bodyJson
-            bodyJson[key] = value
+                bodyJson[key] = value
         elif key in self.POLICY_KEYS:
             policyJson = json.loads('{}')
             if "policy" in self.rootJson:
