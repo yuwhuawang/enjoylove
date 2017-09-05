@@ -1,8 +1,0 @@
-DEBUG 2017-08-06 06:08:21,742 /usr/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.001) SELECT @@SQL_AUTO_IS_NULL; args=None
-DEBUG 2017-08-06 06:08:21,753 /usr/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.011) SELECT VERSION(); args=None
-DEBUG 2017-08-06 06:08:49,825 /usr/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.001) SELECT @@SQL_AUTO_IS_NULL; args=None
-DEBUG 2017-08-06 06:08:49,826 /usr/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.001) SELECT VERSION(); args=None
-DEBUG 2017-08-06 06:10:16,908 /root/enjoylove/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.001) SELECT @@SQL_AUTO_IS_NULL; args=None
-DEBUG 2017-08-06 06:10:16,910 /root/enjoylove/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.001) SELECT VERSION(); args=None
-DEBUG 2017-08-06 06:10:46,633 /root/enjoylove/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.001) SELECT @@SQL_AUTO_IS_NULL; args=None
-DEBUG 2017-08-06 06:10:46,634 /root/enjoylove/lib/python2.7/site-packages/django/db/backends/utils.py utils.py utils execute 91: (0.001) SELECT VERSION(); args=None
