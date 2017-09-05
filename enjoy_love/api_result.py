@@ -25,7 +25,7 @@ class ApiResult(Response):
     #    return repr((self.code, self.msg, self.result, self.error))
 
 
-class BusinessError(Response):
+class BusinessError(Response, BaseException):
     def __init__(self, msg='not ok', code=1, result=None, error=''):
         if not result:
             result = dict()

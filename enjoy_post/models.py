@@ -14,19 +14,23 @@ class Post(models.Model):
         verbose_name_plural = "帖子"
         ordering = ('-create_time', )
 
+    POSTS = 0
+    ARTICLE = 1
+    EVENT = 2
+
     CATELOG_CHOICES = (
-        ("p", "帖子"),
-        ("a", "文章"),
-        ("e", "活动")
+        (POSTS, "帖子"),
+        (ARTICLE, "文章"),
+        (EVENT, "活动")
     )
 
     title = models.CharField("标题", max_length=255, blank=True, null=True)
     content = models.TextField("内容", blank=True, null=True)
     author = models.ForeignKey(User, related_name="post", related_query_name="post")
-    catelog = models.SmallIntegerField("类型", choices=CATELOG_CHOICES, null=True, blank=True)
-    read_count = models.IntegerField("阅读量", null=True, blank=True)
-    comment_count = models.IntegerField("评论数量", null=True, blank=True)
-    like_count = models.IntegerField("喜欢数量" ,null=True, blank=True)
+    catalog = models.SmallIntegerField("类型", choices=CATELOG_CHOICES, null=True, blank=True)
+    read_count = models.PositiveIntegerField("阅读量", null=True, blank=True)
+    comment_count = models.PositiveIntegerField("评论数量", null=True, blank=True)
+    like_count = models.PositiveIntegerField("喜欢数量" ,null=True, blank=True)
     on_top = models.BooleanField("是否置顶", default=False)
     create_time = models.DateTimeField(auto_now_add=True)
 

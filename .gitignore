@@ -113,3 +113,6 @@ enjoylove/.idea/
 /enjoylove/collected_static/grappelli/
 /share/
 /enjoylove/enjoy_orders/migrations/
+
+*/migrations
+*.rdb
