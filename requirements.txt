@@ -18,7 +18,7 @@ gunicorn==19.7.1
 idna==2.5
 iniparse==0.4
 itypes==1.1.0
-Jinja2==2.9.6
+Jinja2==2.11.3
 kitchen==1.1.1
 MarkupSafe==1.0
 meld3==1.0.2
