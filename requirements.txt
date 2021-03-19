@@ -9,7 +9,7 @@ Django==1.11.3
 django-grappelli==2.10.1
 django-redis==4.8.0
 django-rest-swagger==2.1.2
-djangorestframework==3.6.3
+djangorestframework==3.11.2
 djangorestframework-jwt==1.11.0
 drfdocs==0.0.11
 gevent==1.2.2
