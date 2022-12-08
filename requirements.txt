@@ -1,5 +1,5 @@
 backports.ssl-match-hostname==3.4.0.2
-certifi==2017.7.27.1
+certifi==2022.12.7
 chardet==3.0.4
 configobj==4.7.2
 coreapi==2.3.1
